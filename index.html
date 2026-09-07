@@ -9,7 +9,6 @@
     --gray:#a8a8a8;
     --cream:#fdfbf6; --card:#ffffff; --sunk:#f2ede2;
     --black:#111111; --ink-2:#4a4a46; --ink-3:#7c7a72;
-    --line:#111111;
     --font-display:"Archivo Black","Archivo","Helvetica Neue",Arial,sans-serif;
     --font-ui:"Archivo","Helvetica Neue",Arial,sans-serif;
     --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
@@ -22,110 +21,122 @@
   body{margin:0;background:var(--yellow);color:var(--black);font-family:var(--font-body);
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
   h1,h2,h3,h4{margin:0;font-family:var(--font-display);font-weight:400;
-              letter-spacing:-.02em;text-wrap:balance;line-height:1.08}
-
-  /* decorative field behind the sheet, like the reference */
-  .blob{position:fixed;z-index:0;pointer-events:none;border:var(--bd)}
-  .blob.a{width:380px;height:380px;border-radius:50%;background:var(--pink);left:-170px;top:90px}
-  .blob.b{width:320px;height:320px;border-radius:18px;background:var(--purple);right:-140px;bottom:-90px}
-  @media (max-width:1100px){.blob{display:none}}
-
-  .sheet{position:relative;z-index:1;max-width:1300px;margin:26px auto;background:var(--cream);
-         border:var(--bd);border-radius:20px;box-shadow:11px 11px 0 var(--black);overflow:hidden}
-  @media (max-width:900px){.sheet{margin:12px;border-radius:14px;box-shadow:6px 6px 0 var(--black)}}
-
-  /* masthead */
-  .masthead{background:var(--yellow);border-bottom:var(--bd);padding:26px 30px 24px}
-  .masthead-in{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+              letter-spacing:-.03em;text-wrap:balance;line-height:1.08}
   .eyebrow{font-family:var(--font-ui);font-size:10.5px;font-weight:800;text-transform:uppercase;
            letter-spacing:.14em;color:var(--black)}
-  .masthead h1{font-size:46px;margin-top:8px;letter-spacing:-.035em}
-  @media (max-width:700px){.masthead h1{font-size:28px}}
-  .masthead p{margin:10px 0 0;font-size:15px;max-width:62ch;font-weight:600}
+
+  /* ---------- masthead: flat on the yellow ---------- */
+  .top{max-width:1180px;margin:0 auto;padding:40px 26px 26px}
+  .top-in{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+  .top h1{font-size:48px;margin-top:8px}
+  @media (max-width:700px){.top h1{font-size:31px}.top{padding:26px 16px 18px}}
+  .top p{margin:12px 0 0;font-size:16px;max-width:58ch;font-weight:600}
   .sun{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-ui);font-size:11px;
        font-weight:800;text-transform:uppercase;letter-spacing:.1em;background:var(--card);
-       color:var(--black);padding:9px 14px;border:var(--bd);border-radius:10px;
-       box-shadow:var(--sh-sm);white-space:nowrap}
+       padding:9px 14px;border:var(--bd);border-radius:10px;box-shadow:var(--sh-sm);white-space:nowrap}
   .sun b{font-family:var(--font-mono);font-size:13px;letter-spacing:0}
 
-  .wrap{padding:26px 30px 40px;display:grid;grid-template-columns:318px minmax(0,1fr);gap:24px;align-items:start}
-  @media (max-width:1020px){.wrap{grid-template-columns:1fr;padding:20px 16px 32px}}
+  .page{max-width:1180px;margin:0 auto;padding:0 26px 56px;display:flex;flex-direction:column;gap:32px}
+  @media (max-width:700px){.page{padding:0 16px 36px;gap:26px}}
 
-  /* ---- rail ---- */
-  .rail{position:sticky;top:20px;background:var(--card);border:var(--bd);border-radius:14px;
-        box-shadow:var(--sh);overflow:hidden}
-  @media (max-width:1020px){.rail{position:static}}
-  .rail-head{padding:14px 16px;border-bottom:var(--bd);background:var(--lime);display:flex;
-             align-items:center;justify-content:space-between;gap:10px}
-  .rail-head h2{font-size:15px}
-  .reset{background:var(--card);border:3px solid var(--black);color:var(--black);cursor:pointer;
-         font-family:var(--font-ui);font-size:10.5px;font-weight:800;text-transform:uppercase;
-         letter-spacing:.08em;padding:6px 10px;border-radius:7px;box-shadow:2px 2px 0 var(--black)}
-  .reset:hover{background:var(--yellow)}
-  .reset:active{box-shadow:0 0 0 var(--black);transform:translate(2px,2px)}
-
-  fieldset{border:0;margin:0;padding:15px 16px;border-bottom:2px dashed #d8d2c4}
-  fieldset:last-of-type{border-bottom:0}
-  legend{padding:0 0 11px;width:100%}
-  .field{display:grid;grid-template-columns:1fr 88px;gap:8px 10px;align-items:center;margin-bottom:12px}
-  .field:last-child{margin-bottom:0}
-  .field > label{font-size:13.5px;font-weight:600;color:var(--black);line-height:1.3}
-  .field > label small{display:block;color:#7c7a72;font-size:11.5px;font-weight:400}
-  input[type=number]{width:100%;padding:7px 9px;font-family:var(--font-mono);font-size:13.5px;
-       font-weight:700;font-variant-numeric:tabular-nums;text-align:right;color:var(--black);
-       background:var(--card);border:3px solid var(--black);border-radius:8px}
-  input[type=number]:focus{outline:none;box-shadow:3px 3px 0 var(--black);background:#fffbe9}
-  .field.off{opacity:.4}
-  .field.off input{background:var(--sunk);cursor:not-allowed}
-
-  .toggles{display:flex;flex-direction:column;gap:10px}
-  .toggle{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;font-weight:600;cursor:pointer}
-  .toggle input{margin:1px 0 0;accent-color:var(--purple);width:17px;height:17px;flex:none}
-  .toggle span small{display:block;color:#7c7a72;font-size:11.5px;font-weight:400}
-
-  /* ---- canvas ---- */
-  .canvas{display:flex;flex-direction:column;gap:30px;min-width:0}
-  section.block{position:relative;background:var(--card);border:var(--bd);border-radius:14px;
-                box-shadow:var(--sh);padding:20px 22px}
-  /* folder tab, straight from the reference */
-  section.block::before{content:"";position:absolute;left:22px;top:-17px;width:116px;height:18px;
-    background:var(--tab,var(--yellow));border:var(--bd);border-bottom:0;border-radius:9px 9px 0 0}
-  .block-head{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
-  .titleset{display:flex;gap:12px;align-items:flex-start;min-width:0}
+  /* ---------- section cards ---------- */
+  section.block, form.block{position:relative;background:var(--cream);border:var(--bd);
+       border-radius:14px;box-shadow:var(--sh);padding:22px 24px}
+  @media (max-width:700px){section.block,form.block{padding:18px 15px}}
+  section.block::before, form.block::before{content:"";position:absolute;left:22px;top:-17px;
+    width:116px;height:18px;background:var(--tab,var(--yellow));border:var(--bd);
+    border-bottom:0;border-radius:9px 9px 0 0}
+  .block-head{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-start;
+              justify-content:space-between;margin-bottom:18px}
+  .titleset{display:flex;gap:13px;align-items:flex-start;min-width:0}
   .icon{width:48px;height:48px;flex:none;border:var(--bd);border-radius:10px;display:grid;
         place-items:center;background:var(--tab,var(--yellow));box-shadow:var(--sh-sm)}
   .icon svg{width:25px;height:25px;display:block}
-  .block-head h2{font-size:23px;margin-top:2px;letter-spacing:-.03em}
-  .block-head p{margin:6px 0 0;font-size:13.5px;font-weight:600;color:#4a4a46;max-width:72ch}
+  .block-head h2{font-size:24px;margin-top:2px}
+  .block-head p{margin:7px 0 0;font-size:14px;font-weight:600;color:var(--ink-2);max-width:70ch}
   .head-num{font-family:var(--font-mono);font-size:15px;font-weight:700;background:var(--yellow);
             border:3px solid var(--black);border-radius:8px;padding:5px 10px;white-space:nowrap;
-            box-shadow:2px 2px 0 var(--black)}
+            box-shadow:3px 3px 0 var(--black)}
+  .reset{background:var(--card);border:3px solid var(--black);color:var(--black);cursor:pointer;
+         font-family:var(--font-ui);font-size:11px;font-weight:800;text-transform:uppercase;
+         letter-spacing:.08em;padding:8px 12px;border-radius:8px;box-shadow:3px 3px 0 var(--black)}
+  .reset:hover{background:var(--yellow)}
+  .reset:active{box-shadow:0 0 0 var(--black);transform:translate(3px,3px)}
 
-  /* ---- variables table (the hero control) ---- */
-  .vars{border:var(--bd);border-radius:12px;overflow:hidden;background:var(--card)}
-  .vars table{width:100%;border-collapse:collapse}
-  .vars thead th{background:var(--yellow);font-family:var(--font-ui);font-size:10px;font-weight:800;
-      text-transform:uppercase;letter-spacing:.11em;padding:10px 14px;text-align:left;
-      border-bottom:var(--bd);white-space:nowrap}
-  .vars td{padding:14px;border-bottom:2px dashed #d8d2c4;vertical-align:middle;background:var(--card)}
-  .vars tbody tr:last-child td{border-bottom:0}
-  .vars .vname{font-family:var(--font-ui);font-weight:800;font-size:14.5px;white-space:nowrap}
-  .vars .vwhat{font-size:12.5px;color:#4a4a46;line-height:1.45;font-weight:600}
-  .vars .vunit{font-family:var(--font-mono);font-size:12px;font-weight:700;color:#7c7a72;white-space:nowrap}
-  .vars .vctl{width:150px}
-  .vars input[type=number]{font-size:20px;box-shadow:var(--sh-sm)}
+  /* ---------- THE one input area ---------- */
+  .basics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  @media (max-width:820px){.basics{grid-template-columns:1fr}}
+  .q{border:3px solid var(--black);border-radius:12px;padding:15px 16px;background:var(--card);
+     display:flex;flex-direction:column;gap:9px}
+  .q.wide{grid-column:1/-1}
+  .q.dim{opacity:.45}
+  .qtop{display:flex;gap:10px;align-items:flex-start}
+  .qnum{width:26px;height:26px;flex:none;border:2.5px solid var(--black);border-radius:7px;
+        background:var(--yellow);font-family:var(--font-ui);font-weight:800;font-size:13px;
+        display:grid;place-items:center}
+  .qlab{font-family:var(--font-ui);font-weight:800;font-size:16px;line-height:1.25}
+  .qhelp{font-size:13px;color:var(--ink-2);font-weight:600;line-height:1.45}
+  .qrow{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+  .qrow input[type=number]{width:104px;font-size:21px;box-shadow:var(--sh-sm)}
+  .unit{font-family:var(--font-mono);font-weight:700;font-size:13px;color:var(--ink-3)}
+  .live{font-family:var(--font-mono);font-size:12px;font-weight:700;background:var(--lime);
+        border:2.5px solid var(--black);border-radius:7px;padding:4px 9px;display:inline-block}
+  .q.dim .live{background:var(--sunk)}
+
+  input[type=number]{width:100%;padding:8px 10px;font-family:var(--font-mono);font-size:14px;
+       font-weight:700;font-variant-numeric:tabular-nums;text-align:right;color:var(--black);
+       background:var(--card);border:3px solid var(--black);border-radius:8px}
+  input[type=number]:focus{outline:none;box-shadow:var(--sh-sm);background:#fffbe9}
+  input[type=number]:disabled{background:var(--sunk);cursor:not-allowed}
 
   .seg{display:inline-flex;border:3px solid var(--black);border-radius:9px;overflow:hidden;
        background:var(--card);box-shadow:var(--sh-sm)}
   .seg button{appearance:none;border:0;background:var(--card);color:var(--black);cursor:pointer;
-      font-family:var(--font-ui);font-size:13.5px;font-weight:800;padding:9px 18px}
+      font-family:var(--font-ui);font-size:15px;font-weight:800;padding:9px 22px}
   .seg button + button{border-left:3px solid var(--black)}
-  .seg button[aria-pressed="true"]{background:var(--green);color:#fff}
+  .seg button#batYes[aria-pressed="true"]{background:var(--green);color:#fff}
   .seg button#batNo[aria-pressed="true"]{background:var(--pink);color:#fff}
 
-  /* ---- tiles ---- */
+  /* ---------- advanced ---------- */
+  details.adv{margin-top:18px;border:3px solid var(--black);border-radius:12px;
+              background:var(--card);overflow:hidden}
+  details.adv > summary{cursor:pointer;list-style:none;padding:14px 16px;background:var(--purple);
+      color:#fff;font-family:var(--font-ui);font-weight:800;font-size:14.5px;display:flex;
+      align-items:center;gap:11px;border-bottom:3px solid transparent}
+  details.adv > summary::-webkit-details-marker{display:none}
+  details.adv[open] > summary{border-bottom-color:var(--black)}
+  .caret{width:24px;height:24px;flex:none;border:2.5px solid var(--black);border-radius:6px;
+         background:#fff;color:var(--black);display:grid;place-items:center;
+         font-family:var(--font-ui);font-weight:800;font-size:15px;line-height:1}
+  details.adv[open] .caret::after{content:"−"} details.adv:not([open]) .caret::after{content:"+"}
+  .summary-sub{font-weight:600;font-size:12.5px;opacity:.92;font-family:var(--font-body)}
+  .advgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+  @media (max-width:820px){.advgrid{grid-template-columns:1fr}}
+  .agroup{padding:16px 18px;border-bottom:3px solid var(--black);border-right:3px solid var(--black)}
+  .agroup:nth-child(2n){border-right:0}
+  .agroup:nth-last-child(1),.agroup:nth-last-child(2):nth-child(2n+1){border-bottom:0}
+  @media (max-width:820px){.agroup{border-right:0}.agroup:last-child{border-bottom:0}}
+  .agroup h3{font-family:var(--font-ui);font-weight:800;font-size:12px;text-transform:uppercase;
+             letter-spacing:.12em;margin-bottom:4px}
+  .agroup .gtag{display:inline-block;width:34px;height:6px;border:2px solid var(--black);
+                border-radius:3px;margin-bottom:9px}
+  .af{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;
+      padding:12px 0;border-bottom:2px dashed #ddd7c8}
+  .af:last-child{border-bottom:0}
+  .af.dim{opacity:.45}
+  .af .txt{min-width:0}
+  .aflab{font-family:var(--font-ui);font-weight:800;font-size:13.5px;display:block}
+  .afhelp{font-size:12px;color:var(--ink-2);font-weight:500;line-height:1.45;margin-top:3px;display:block}
+  .af .ctl{flex:none;width:96px;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+  .af .ctl .unit{font-size:10.5px}
+  .aftoggle{display:flex;gap:10px;align-items:flex-start;padding:12px 0;
+            border-bottom:2px dashed #ddd7c8;cursor:pointer}
+  .aftoggle:last-child{border-bottom:0}
+  .aftoggle input{margin:2px 0 0;accent-color:var(--purple);width:18px;height:18px;flex:none}
+
+  /* ---------- tiles ---------- */
   .tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
-  @media (max-width:1240px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:1100px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
   @media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
   .tile{background:var(--card);border:var(--bd);border-radius:12px;box-shadow:var(--sh);
         padding:14px 15px;display:flex;flex-direction:column;gap:9px}
@@ -137,11 +148,11 @@
            letter-spacing:.1em;line-height:1.2}
   .tile .v{font-family:var(--font-mono);font-size:29px;font-weight:700;line-height:1;
            letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-  .tile .u{font-size:12.5px;font-weight:600;color:#4a4a46}
+  .tile .u{font-size:12.5px;font-weight:600;color:var(--ink-2)}
   .tile.lead{background:var(--yellow)}
-  .tile.none .v{color:#7c7a72}
+  .tile.none .v{color:var(--ink-3)}
 
-  /* ---- checks ---- */
+  /* ---------- checks ---------- */
   .verdict{display:flex;flex-wrap:wrap;gap:14px}
   .chk{display:flex;gap:10px;align-items:flex-start;flex:1 1 250px;padding:13px 14px;
        border:var(--bd);border-radius:12px;box-shadow:var(--sh-sm);font-size:13.5px;
@@ -155,31 +166,32 @@
 
   .chart{width:100%;overflow-x:auto}
   .chart svg{display:block}
-  .legend{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:16px;padding-top:14px;border-top:2px dashed #d8d2c4}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:16px;padding-top:14px;
+          border-top:2px dashed #ddd7c8}
   .legend .li{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700}
   .legend .sw{width:16px;height:16px;border:2.5px solid var(--black);border-radius:5px;flex:none}
 
-  /* ---- phases ---- */
+  /* ---------- phases ---------- */
   .phases{display:grid;grid-template-columns:1fr auto 1fr;border:var(--bd);border-radius:12px;overflow:hidden}
   @media (max-width:720px){.phases{grid-template-columns:1fr}}
   .phase{padding:16px 18px}
   .phase.now{background:var(--card)} .phase.fin{background:var(--sunk)}
   .phase h3{font-size:16px;margin-bottom:4px}
-  .phase .cap{font-size:12.5px;font-weight:600;color:#4a4a46;margin-bottom:12px}
+  .phase .cap{font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:12px}
   .arrow{display:grid;place-items:center;padding:0 16px;background:var(--purple);color:#fff;
          border-left:var(--bd);border-right:var(--bd);font-family:var(--font-ui);
          font-size:14px;font-weight:800}
   @media (max-width:720px){.arrow{padding:10px;border:0;border-top:var(--bd);border-bottom:var(--bd)}}
   .prow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:7px 0;
-        border-bottom:2px dashed #d8d2c4;font-size:13.5px}
+        border-bottom:2px dashed #ddd7c8;font-size:13.5px}
   .prow:last-child{border-bottom:0}
-  .prow span{font-weight:600;color:#4a4a46}
+  .prow span{font-weight:600;color:var(--ink-2)}
   .prow b{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;font-size:14px}
 
-  /* ---- data tables ---- */
+  /* ---------- data tables ---------- */
   table.data{width:100%;border-collapse:collapse;font-size:13.5px}
-  table.data caption{text-align:left;color:#4a4a46;font-size:12.5px;font-weight:600;padding-bottom:10px}
-  table.data th,table.data td{padding:9px 10px;text-align:left;border-bottom:2px dashed #d8d2c4;vertical-align:top}
+  table.data caption{text-align:left;color:var(--ink-2);font-size:12.5px;font-weight:600;padding-bottom:10px}
+  table.data th,table.data td{padding:9px 10px;text-align:left;border-bottom:2px dashed #ddd7c8;vertical-align:top}
   table.data thead th{font-family:var(--font-ui);font-size:10.5px;font-weight:800;text-transform:uppercase;
       letter-spacing:.1em;border-bottom:var(--bd);white-space:nowrap;background:var(--sunk)}
   table.data td.n,table.data th.n{text-align:right;font-family:var(--font-mono);
@@ -188,253 +200,252 @@
   table.data tfoot td{font-weight:800;font-size:14px;padding-top:12px;font-family:var(--font-ui)}
   .swcell{display:flex;align-items:center;gap:10px}
   .swcell .sw{width:14px;height:28px;border:2.5px solid var(--black);border-radius:4px;flex:none}
-  .spec{color:#7c7a72;font-size:12px;font-weight:400;display:block;margin-top:2px}
+  .spec{color:var(--ink-3);font-size:12px;font-weight:400;display:block;margin-top:2px}
   table.data td strong{font-family:var(--font-ui);font-weight:800}
-
   .price-in{width:126px;margin-left:auto}
   .price-in input{font-size:13.5px}
-  .derived{font-family:var(--font-mono);font-size:11px;font-weight:700;color:#7c7a72;
+  .derived{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--ink-3);
            display:block;margin-top:4px;text-align:right}
-  .band{font-family:var(--font-mono);font-size:12.5px;font-weight:500;color:#4a4a46}
+  .band{font-family:var(--font-mono);font-size:12.5px;font-weight:500;color:var(--ink-2)}
   .src{line-height:2}
   .src a{color:var(--black);font-weight:700;font-size:12.5px;text-decoration:none;
          background:var(--lime);border:2.5px solid var(--black);border-radius:6px;padding:1px 7px;
          display:inline-block;margin:1px 0}
   .src a:hover{background:var(--yellow)}
-
   .disclose{background:var(--pink);color:#fff;border:var(--bd);border-radius:12px;padding:14px 16px;
             font-size:13.5px;font-weight:600;line-height:1.5;margin-bottom:18px;box-shadow:var(--sh-sm)}
   .disclose b{font-family:var(--font-ui);font-weight:800}
-
-  .note{font-size:12.5px;color:#4a4a46;font-weight:500;line-height:1.55;margin:16px 0 0}
+  .note{font-size:12.5px;color:var(--ink-2);font-weight:500;line-height:1.55;margin:16px 0 0}
   .note strong{font-family:var(--font-ui);font-weight:800;color:var(--black)}
   :focus-visible{outline:3px solid var(--purple);outline-offset:2px}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
-<div class="blob a"></div>
-<div class="blob b"></div>
-<div class="sheet">
-<header class="masthead">
-  <div class="masthead-in">
+<header class="top">
+  <div class="top-in">
     <div>
-      <div class="eyebrow">Dimensionamiento de respaldo solar &middot; Caribe colombiano</div>
+      <div class="eyebrow">Respaldo solar &middot; Santa Marta y el Caribe colombiano</div>
       <h1>Dimensionador Solar Caribe</h1>
-      <p>Dimensiona un sistema solar ampliable a partir de las cargas que debe soportar: paneles, almacenamiento, inversores, costo en COP y un cronograma ordenado por dependencias.</p>
+      <p>Dime cu&aacute;ntos aires quieres mover y por cu&aacute;ntas horas. Te digo cu&aacute;ntos paneles necesitas, cu&aacute;nto cuesta en pesos y cu&aacute;nto se demora.</p>
     </div>
     <div class="sun">Santa Marta HSP <b id="hspBadge">5,5</b> kWh/m&sup2;&middot;d</div>
   </div>
 </header>
 
-<div class="wrap">
-  <form class="rail" id="rail" autocomplete="off">
-    <div class="rail-head">
-      <h2>Par&aacute;metros</h2>
+<div class="page">
+
+  <form class="block" id="rail" autocomplete="off" style="--tab:var(--lime)">
+    <div class="block-head">
+      <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h10M18 8h2M4 16h4M12 16h8"/><circle cx="16" cy="8" r="2.4"/><circle cx="10" cy="16" r="2.4"/></svg></span>
+        <div>
+          <div class="eyebrow">Paso 1 &mdash; lo &uacute;nico que tienes que llenar</div>
+          <h2>&iquest;Qu&eacute; necesitas mover?</h2>
+          <p>Responde estas cinco preguntas con lo que sepas de tu casa. Cada respuesta cambia todo el resto de la p&aacute;gina al instante.</p>
+        </div>
+      </div>
       <button type="button" class="reset" id="reset">Restablecer</button>
     </div>
 
-    <fieldset>
-      <legend class="eyebrow">Almacenamiento</legend>
-      <div class="field" id="dodField">
-        <label for="dod">Profundidad de descarga<small>LiFePO&#8324; &mdash; % de la placa</small></label>
-        <input type="number" id="dod" value="90" min="50" max="100" step="1">
-      </div>
-    </fieldset>
+    <div class="basics">
 
-    <fieldset>
-      <legend class="eyebrow">Carga de aire acondicionado</legend>
-      <div class="field">
-        <label for="acUnits">Unidades split<small>Clase Midea Solstice 18.000 BTU/h</small></label>
-        <input type="number" id="acUnits" value="2" min="0" max="40" step="1">
+      <div class="q">
+        <div class="qtop"><span class="qnum">1</span>
+          <label class="qlab" for="acUnits">&iquest;Cu&aacute;ntos aires acondicionados?</label></div>
+        <div class="qhelp">Split de 18.000&nbsp;BTU, el tama&ntilde;o t&iacute;pico para una sala o una habitaci&oacute;n grande.</div>
+        <div class="qrow">
+          <input type="number" id="acUnits" value="2" min="0" max="40" step="1">
+          <span class="unit">aires</span>
+        </div>
+        <span class="live" id="hAc">&nbsp;</span>
       </div>
-      <div class="field">
-        <label for="acWatts">Consumo nominal c/u<small>W &mdash; ficha t&eacute;cnica 634&ndash;2.120 W</small></label>
-        <input type="number" id="acWatts" value="1600" min="200" max="4000" step="10">
-      </div>
-      <div class="field">
-        <label for="duty">Ciclo de trabajo<small>% del nominal, promediado</small></label>
-        <input type="number" id="duty" value="65" min="20" max="100" step="1">
-      </div>
-    </fieldset>
 
-    <fieldset>
-      <legend class="eyebrow">Otras cargas</legend>
-      <div class="field">
-        <label for="otherKwh">Energ&iacute;a diaria<small>kWh/d&iacute;a &mdash; nevera, luces, bombas</small></label>
-        <input type="number" id="otherKwh" value="4" min="0" max="200" step="0.5">
+      <div class="q">
+        <div class="qtop"><span class="qnum">2</span>
+          <label class="qlab" for="acHours">&iquest;Cu&aacute;ntas horas al d&iacute;a los prendes?</label></div>
+        <div class="qhelp">Suma las horas que cada aire pasa encendido. En la costa lo normal son 8 horas, casi todas de noche.</div>
+        <div class="qrow">
+          <input type="number" id="acHours" value="8" min="0" max="24" step="0.5">
+          <span class="unit">horas al d&iacute;a</span>
+        </div>
+        <span class="live" id="hHours">&nbsp;</span>
       </div>
-      <div class="field">
-        <label for="otherPeak">Pico simult&aacute;neo<small>W</small></label>
-        <input type="number" id="otherPeak" value="1500" min="0" max="20000" step="50">
-      </div>
-    </fieldset>
 
-    <fieldset>
-      <legend class="eyebrow">Sitio y equipos</legend>
-      <div class="field">
-        <label for="hsp">Horas solares pico<small>kWh/m&sup2;&middot;d&iacute;a (HSP)</small></label>
-        <input type="number" id="hsp" value="5.5" min="2" max="8" step="0.1">
+      <div class="q">
+        <div class="qtop"><span class="qnum">3</span>
+          <span class="qlab">&iquest;Quieres bater&iacute;as para los apagones?</span></div>
+        <div class="qhelp"><strong>S&iacute;</strong>: el aire sigue prendido cuando se va la luz. <strong>No</strong>: sale mucho m&aacute;s barato, pero solo te ahorra factura mientras hay sol.</div>
+        <div class="qrow">
+          <div class="seg" role="group" aria-label="Bater&iacute;as">
+            <button type="button" id="batYes" aria-pressed="true">S&iacute;</button>
+            <button type="button" id="batNo" aria-pressed="false">No</button>
+          </div>
+        </div>
+        <span class="live" id="hBat">&nbsp;</span>
       </div>
-      <div class="field">
-        <label for="pr">Ratio de desempe&ntilde;o<small>% &mdash; suciedad, calor, ida y vuelta</small></label>
-        <input type="number" id="pr" value="78" min="50" max="95" step="1">
-      </div>
-      <div class="field">
-        <label for="panelW">Potencia por panel<small>Wp por m&oacute;dulo</small></label>
-        <input type="number" id="panelW" value="585" min="100" max="800" step="5">
-      </div>
-      <div class="field">
-        <label for="expansion">Multiplicador forma final<small>&times; la potencia inicial</small></label>
-        <input type="number" id="expansion" value="2.5" min="1" max="10" step="0.1">
-      </div>
-    </fieldset>
 
-    <fieldset>
-      <legend class="eyebrow">Comercial</legend>
-      <div class="field">
-        <label for="margin">Margen del instalador<small>%</small></label>
-        <input type="number" id="margin" value="12" min="0" max="60" step="1">
+      <div class="q">
+        <div class="qtop"><span class="qnum">4</span>
+          <label class="qlab" for="storage">&iquest;Cu&aacute;nta energ&iacute;a quieres guardada?</label></div>
+        <div class="qhelp">Es el tama&ntilde;o del banco de bater&iacute;as. M&aacute;s kWh = m&aacute;s horas aguantando sin sol, y es el rengl&oacute;n m&aacute;s caro del presupuesto.</div>
+        <div class="qrow">
+          <input type="number" id="storage" value="12" min="1" max="200" step="0.5">
+          <span class="unit">kWh</span>
+        </div>
+        <span class="live" id="hCap">&nbsp;</span>
       </div>
-      <div class="toggles">
-        <label class="toggle"><input type="checkbox" id="ley" checked><span>Exclusi&oacute;n de IVA (Ley 1715)<small>Retira el 19% en equipos y servicios</small></span></label>
-        <label class="toggle"><input type="checkbox" id="grid" checked><span>Conexi&oacute;n a la red<small>Suma el tr&aacute;mite ante el operador de red</small></span></label>
-      </div>
-    </fieldset>
-  </form>
 
-  <main class="canvas">
-
-    <section class="block" style="--tab:var(--yellow)">
-      <div class="block-head">
-        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h10M18 8h2M4 16h4M12 16h8" /><circle cx="16" cy="8" r="2.4"/><circle cx="10" cy="16" r="2.4"/></svg></span><div>
-          <div class="eyebrow">Variables principales</div>
-          <h2>Tabla de variables</h2>
-          <p>Cambia cualquiera de estos tres valores y todo el documento &mdash; paneles, costo, cronograma y forma final &mdash; se recalcula al instante.</p>
-        </div></div>
-      </div>
-      <div class="vars">
-        <table>
-          <thead>
-            <tr><th>Variable</th><th>Valor</th><th>Unidad</th><th>Qu&eacute; cambia en el c&aacute;lculo</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="vname"><label for="storage">Capacidad utilizable</label></td>
-              <td class="vctl"><input type="number" id="storage" value="12" min="1" max="200" step="0.5"></td>
-              <td class="vunit">kWh</td>
-              <td class="vwhat">Autonom&iacute;a nocturna, cantidad de m&oacute;dulos de bater&iacute;a y el rengl&oacute;n de almacenamiento del presupuesto.</td>
-            </tr>
-            <tr>
-              <td class="vname">Banco de bater&iacute;as</td>
-              <td class="vctl">
-                <div class="seg" role="group" aria-label="Banco de bater&iacute;as">
-                  <button type="button" id="batYes" aria-pressed="true">S&iacute;</button>
-                  <button type="button" id="batNo" aria-pressed="false">No</button>
-                </div>
-              </td>
-              <td class="vunit">s&iacute; / no</td>
-              <td class="vwhat">Con bater&iacute;as hay respaldo real en apag&oacute;n. Sin ellas el sistema solo compensa consumo mientras hay sol y los aires se apagan si se cae la red.</td>
-            </tr>
-            <tr>
-              <td class="vname"><label for="acHours">Horas de uso por d&iacute;a</label></td>
-              <td class="vctl"><input type="number" id="acHours" value="8" min="0" max="24" step="0.5"></td>
-              <td class="vunit">h/d&iacute;a</td>
-              <td class="vwhat">Energ&iacute;a diaria de los aires, tama&ntilde;o del arreglo, n&uacute;mero de paneles y la autonom&iacute;a que se le exige al banco.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <div class="tiles" id="tiles"></div>
-
-    <section class="block" style="--tab:var(--green)">
-      <div class="block-head">
-        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13l5 5L20 6"/></svg></span><div>
-          <div class="eyebrow">Verificaciones</div>
-          <h2>&iquest;El dise&ntilde;o realmente soporta la carga?</h2>
-          <p>Margen de generaci&oacute;n, autonom&iacute;a nocturna y holgura del inversor, recalculados con cada cambio.</p>
-        </div></div>
-      </div>
-      <div class="verdict" id="verdict"></div>
-    </section>
-
-    <section class="block" style="--tab:var(--pink)">
-      <div class="block-head">
-        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="5"/><path d="M14.5 5.5A5 5 0 1 1 15 18.4"/></svg></span><div>
-          <div class="eyebrow">Costo de capital &mdash; Fase 1</div>
-          <h2>En qu&eacute; se va el dinero</h2>
-          <p>Precios de mercado colombiano 2026. Las barras est&aacute;n etiquetadas directamente; la lista completa de materiales est&aacute; m&aacute;s abajo.</p>
-        </div></div>
-        <div class="head-num" id="costTotalLabel"></div>
-      </div>
-      <div class="chart" id="costChart"></div>
-      <div class="legend" id="costLegend"></div>
-    </section>
-
-    <section class="block" style="--tab:var(--lime)">
-      <div class="block-head">
-        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V5a1 1 0 0 1 1-1h6l9 9-7 7z"/><circle cx="8" cy="8" r="1.6"/></svg></span><div>
-          <div class="eyebrow">Trazabilidad de precios</div>
-          <h2>De d&oacute;nde salen los precios</h2>
-          <p>Cada precio unitario es editable: si ya tienes una cotizaci&oacute;n real, escr&iacute;bela aqu&iacute; y todo el presupuesto se recalcula con tu n&uacute;mero.</p>
-        </div></div>
-      </div>
-      <div class="disclose">
-        <b>C&oacute;mo leer esta tabla.</b> Los rangos de mercado provienen de precios publicados por distribuidores colombianos en 2026. Los precios unitarios que trae el formulario son el punto medio de esos rangos, no cotizaciones cerradas de un SKU espec&iacute;fico &mdash; no fue posible leer el precio individual de cada referencia en las tiendas. &Uacute;salos para planear y reempl&aacute;zalos con cotizaciones formales antes de comprometer plata.
-      </div>
-      <div class="chart">
-        <table class="data" id="prices"></table>
-      </div>
-      <div class="block-head" style="margin:26px 0 12px">
-        <div>
-          <div class="eyebrow">Proveedores de paneles consultados</div>
-          <p>Distribuidores colombianos con cat&aacute;logo p&uacute;blico de m&oacute;dulos en el rango 550&ndash;620&nbsp;Wp.</p>
+      <div class="q wide">
+        <div class="qtop"><span class="qnum">5</span>
+          <label class="qlab" for="otherKwh">&iquest;Y el resto de la casa?</label></div>
+        <div class="qhelp">Todo lo que no es aire acondicionado: nevera, luces, wifi, televisor, bomba de agua. Una casa mediana en la costa gasta cerca de 4&nbsp;kWh al d&iacute;a en eso. Si no sabes, deja el 4.</div>
+        <div class="qrow">
+          <input type="number" id="otherKwh" value="4" min="0" max="200" step="0.5">
+          <span class="unit">kWh al d&iacute;a</span>
+          <span class="live" id="hOther">&nbsp;</span>
         </div>
       </div>
-      <div class="chart">
-        <table class="data" id="suppliers"></table>
-      </div>
-    </section>
 
-    <section class="block" style="--tab:var(--purple)">
-      <div class="block-head">
-        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10V4h6M20 14v6h-6M4 4l7 7M20 20l-7-7"/></svg></span><div>
-          <div class="eyebrow">Ampliabilidad</div>
-          <h2>Fase 1 hoy, forma final despu&eacute;s</h2>
-          <p>La forma final corre <span id="expLabel">2,5&times;</span> la potencia inicial. Dimensionar desde ya la barra de 48&nbsp;V, la estructura y el espacio de gabinete es lo que hace que la segunda fase sea una ampliaci&oacute;n y no una obra nueva.</p>
-        </div></div>
-      </div>
-      <div class="phases" id="phases"></div>
-      <p class="note" id="expNote"></p>
-    </section>
+    </div>
 
-    <section class="block" style="--tab:var(--purple)">
-      <div class="block-head">
-        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><path d="M8 3v5M16 3v5M3.5 11h17"/></svg></span><div>
-          <div class="eyebrow">Cronograma de obra</div>
+    <details class="adv">
+      <summary><span class="caret" aria-hidden="true"></span>
+        <span>Ajustes avanzados
+          <span class="summary-sub">&mdash; ya vienen con valores razonables. &Aacute;brelos solo si sabes qu&eacute; cambiar.</span>
+        </span>
+      </summary>
+      <div class="advgrid">
+
+        <div class="agroup">
+          <span class="gtag" style="background:var(--pink)"></span>
+          <h3>Los aires acondicionados</h3>
+          <div class="af"><div class="txt"><label class="aflab" for="acWatts">Consumo de cada aire</label><span class="afhelp">Lo que se come cada aire mientras trabaja. La ficha del Midea de 18.000 BTU dice entre 634 y 2.120 W seg&uacute;n el esfuerzo; 1.600 es un promedio realista.</span></div><div class="ctl"><input type="number" id="acWatts" value="1600" min="200" max="4000" step="10"><span class="unit">W</span></div></div>
+          <div class="af"><div class="txt"><label class="aflab" for="duty">Ciclo de trabajo</label><span class="afhelp">Un aire inverter no consume su m&aacute;ximo todo el tiempo: baja revoluciones cuando el cuarto ya est&aacute; fr&iacute;o. 65% es lo t&iacute;pico en clima costero.</span></div><div class="ctl"><input type="number" id="duty" value="65" min="20" max="100" step="1"><span class="unit">%</span></div></div>
+          <div class="af"><div class="txt"><label class="aflab" for="otherPeak">Pico del resto de la casa</label><span class="afhelp">Cu&aacute;nto pueden pedir al mismo tiempo los dem&aacute;s aparatos. Define el tama&ntilde;o del inversor, no el n&uacute;mero de paneles.</span></div><div class="ctl"><input type="number" id="otherPeak" value="1500" min="0" max="20000" step="50"><span class="unit">W</span></div></div>
+        </div>
+
+        <div class="agroup">
+          <span class="gtag" style="background:var(--green)"></span>
+          <h3>El sitio</h3>
+          <div class="af"><div class="txt"><label class="aflab" for="hsp">Horas solares pico (HSP)</label><span class="afhelp">Cu&aacute;ntas horas de sol &laquo;a plena potencia&raquo; recibe el techo cada d&iacute;a. Santa Marta tiene 5,5 &mdash; la franja m&aacute;s alta de Colombia. Bogot&aacute; ronda 4,0.</span></div><div class="ctl"><input type="number" id="hsp" value="5.5" min="2" max="8" step="0.1"><span class="unit">kWh/m&sup2;&middot;d</span></div></div>
+          <div class="af"><div class="txt"><label class="aflab" for="pr">Ratio de desempe&ntilde;o</label><span class="afhelp">Lo que se pierde por calor, polvo, cableado y el ida-y-vuelta de la bater&iacute;a. Nunca es 100%. 78% es conservador y realista.</span></div><div class="ctl"><input type="number" id="pr" value="78" min="50" max="95" step="1"><span class="unit">%</span></div></div>
+        </div>
+
+        <div class="agroup">
+          <span class="gtag" style="background:var(--purple)"></span>
+          <h3>Los equipos</h3>
+          <div class="af"><div class="txt"><label class="aflab" for="panelW">Potencia de cada panel</label><span class="afhelp">Lo que produce un panel en condiciones ideales. Hoy en Colombia lo com&uacute;n son 550 a 620 Wp. M&aacute;s potencia por panel = menos paneles y menos estructura.</span></div><div class="ctl"><input type="number" id="panelW" value="585" min="100" max="800" step="5"><span class="unit">Wp</span></div></div>
+          <div class="af"><div class="txt"><label class="aflab" for="dod">Profundidad de descarga</label><span class="afhelp">Qu&eacute; porcentaje de la bater&iacute;a se puede usar sin acortarle la vida. El litio LiFePO&#8324; aguanta 90%; el plomo-&aacute;cido apenas 50%.</span></div><div class="ctl"><input type="number" id="dod" value="90" min="50" max="100" step="1"><span class="unit">%</span></div></div>
+        </div>
+
+        <div class="agroup">
+          <span class="gtag" style="background:var(--gray)"></span>
+          <h3>El proyecto</h3>
+          <div class="af"><div class="txt"><label class="aflab" for="expansion">Multiplicador de la forma final</label><span class="afhelp">Cu&aacute;ntas veces m&aacute;s grande quedar&aacute; el sistema cuando lo termines de ampliar. 2,5 significa pasar de 2 aires a 5.</span></div><div class="ctl"><input type="number" id="expansion" value="2.5" min="1" max="10" step="0.1"><span class="unit">&times;</span></div></div>
+          <div class="af"><div class="txt"><label class="aflab" for="margin">Margen del instalador</label><span class="afhelp">Lo que la empresa cobra por encima de equipos y mano de obra. Entre 10% y 20% es lo corriente.</span></div><div class="ctl"><input type="number" id="margin" value="12" min="0" max="60" step="1"><span class="unit">%</span></div></div>
+          <label class="aftoggle"><input type="checkbox" id="ley" checked><span><span class="aflab">Exclusi&oacute;n de IVA (Ley 1715)</span><span class="afhelp">La Ley 1715 de 2014 quita el 19% de IVA en los equipos y servicios de un proyecto solar. Ap&aacute;galo para ver el precio con IVA.</span></span></label>
+          <label class="aftoggle"><input type="checkbox" id="grid" checked><span><span class="aflab">Conexi&oacute;n a la red</span><span class="afhelp">Si el sistema queda amarrado a la red el&eacute;ctrica hay que pedir permiso al operador de red, y eso suma semanas al cronograma.</span></span></label>
+        </div>
+
+      </div>
+    </details>
+  </form>
+
+  <div class="tiles" id="tiles"></div>
+
+  <section class="block" style="--tab:var(--green)">
+    <div class="block-head">
+      <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13l5 5L20 6"/></svg></span>
+        <div>
+          <div class="eyebrow">Paso 2 &mdash; la revisi&oacute;n honesta</div>
+          <h2>&iquest;De verdad aguanta?</h2>
+          <p>Tres preguntas que deciden si el dise&ntilde;o sirve: si los paneles alcanzan, si la bater&iacute;a llega hasta la ma&ntilde;ana y si el inversor soporta el arranque de los compresores.</p>
+        </div>
+      </div>
+    </div>
+    <div class="verdict" id="verdict"></div>
+  </section>
+
+  <section class="block" style="--tab:var(--pink)">
+    <div class="block-head">
+      <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="5"/><path d="M14.5 5.5A5 5 0 1 1 15 18.4"/></svg></span>
+        <div>
+          <div class="eyebrow">Paso 3 &mdash; la plata</div>
+          <h2>En qu&eacute; se va el dinero</h2>
+          <p>Precios de mercado colombiano 2026. Cada barra est&aacute; etiquetada con su valor; la lista completa est&aacute; al final de la p&aacute;gina.</p>
+        </div>
+      </div>
+      <div class="head-num" id="costTotalLabel"></div>
+    </div>
+    <div class="chart" id="costChart"></div>
+    <div class="legend" id="costLegend"></div>
+  </section>
+
+  <section class="block" style="--tab:var(--lime)">
+    <div class="block-head">
+      <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V5a1 1 0 0 1 1-1h6l9 9-7 7z"/><circle cx="8" cy="8" r="1.6"/></svg></span>
+        <div>
+          <div class="eyebrow">Paso 4 &mdash; de d&oacute;nde salen los precios</div>
+          <h2>Nada de precios inventados</h2>
+          <p>Cada precio unitario es editable: si ya tienes una cotizaci&oacute;n real, escr&iacute;bela aqu&iacute; y todo el presupuesto se recalcula con tu n&uacute;mero.</p>
+        </div>
+      </div>
+    </div>
+    <div class="disclose">
+      <b>C&oacute;mo leer esta tabla.</b> Los rangos de mercado son precios publicados por distribuidores colombianos en 2026. Los valores que trae el formulario son el punto medio de esos rangos, no cotizaciones cerradas de una referencia espec&iacute;fica &mdash; no fue posible leer el precio individual de cada producto en las tiendas. &Uacute;salos para planear y reempl&aacute;zalos con cotizaciones formales antes de comprometer plata.
+    </div>
+    <div class="chart"><table class="data" id="prices"></table></div>
+    <div class="block-head" style="margin:26px 0 12px">
+      <div>
+        <div class="eyebrow">Proveedores de paneles consultados</div>
+        <p>Distribuidores colombianos con cat&aacute;logo p&uacute;blico de m&oacute;dulos en el rango 550&ndash;620&nbsp;Wp.</p>
+      </div>
+    </div>
+    <div class="chart"><table class="data" id="suppliers"></table></div>
+  </section>
+
+  <section class="block" style="--tab:var(--purple)">
+    <div class="block-head">
+      <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10V4h6M20 14v6h-6M4 4l7 7M20 20l-7-7"/></svg></span>
+        <div>
+          <div class="eyebrow">Paso 5 &mdash; c&oacute;mo crece</div>
+          <h2>Empiezas peque&ntilde;o y ampl&iacute;as</h2>
+          <p>La forma final corre <span id="expLabel">2,5&times;</span> la potencia inicial. Dejar lista desde el primer d&iacute;a la barra de 48&nbsp;V, la estructura y el espacio de gabinete es lo que hace que la segunda etapa sea una ampliaci&oacute;n y no una obra nueva.</p>
+        </div>
+      </div>
+    </div>
+    <div class="phases" id="phases"></div>
+    <p class="note" id="expNote"></p>
+  </section>
+
+  <section class="block" style="--tab:var(--gold)">
+    <div class="block-head">
+      <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><path d="M8 3v5M16 3v5M3.5 11h17"/></svg></span>
+        <div>
+          <div class="eyebrow">Paso 6 &mdash; cu&aacute;nto se demora</div>
           <h2>Tiempo estimado</h2>
-          <p>Numerado por orden de dependencias &mdash; la tramitolog&iacute;a corre en paralelo con las compras, as&iacute; que la ruta cr&iacute;tica es m&aacute;s corta que la suma de las partes.</p>
-        </div></div>
-        <div class="head-num" id="ganttTotal"></div>
+          <p>Numerado por orden de dependencias. La tramitolog&iacute;a corre en paralelo con las compras, as&iacute; que la ruta cr&iacute;tica es m&aacute;s corta que la suma de las partes.</p>
+        </div>
       </div>
-      <div class="chart" id="gantt"></div>
-      <div class="legend" id="ganttLegend"></div>
-    </section>
+      <div class="head-num" id="ganttTotal"></div>
+    </div>
+    <div class="chart" id="gantt"></div>
+    <div class="legend" id="ganttLegend"></div>
+  </section>
 
-    <section class="block" style="--tab:var(--gray)">
-      <div class="block-head">
-        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/></svg></span><div>
-          <div class="eyebrow">Lista de materiales</div>
-          <h2>&Iacute;tems de la Fase 1</h2>
-        </div></div>
+  <section class="block" style="--tab:var(--gray)">
+    <div class="block-head">
+      <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/></svg></span>
+        <div>
+          <div class="eyebrow">Paso 7 &mdash; qu&eacute; hay que comprar</div>
+          <h2>Lista de materiales</h2>
+        </div>
       </div>
-      <div class="chart"><table class="data" id="bom"></table></div>
-      <p class="note" id="grounding"></p>
-      <p class="note">Esta es una estimaci&oacute;n de planeaci&oacute;n, no una cotizaci&oacute;n. Antes de comprometer plata confirma &aacute;rea y orientaci&oacute;n de cubierta, sombras panel por panel, capacidad de la acometida y las reglas vigentes de conexi&oacute;n del operador de red.</p>
-    </section>
-  </main>
-</div>
+    </div>
+    <div class="chart"><table class="data" id="bom"></table></div>
+    <p class="note" id="grounding"></p>
+    <p class="note">Esta es una estimaci&oacute;n para planear, no una cotizaci&oacute;n. Antes de comprometer plata confirma &aacute;rea y orientaci&oacute;n de la cubierta, sombras panel por panel, capacidad de la acometida y las reglas vigentes de conexi&oacute;n del operador de red.</p>
+  </section>
+
 </div>
 
 <script>
@@ -571,7 +582,7 @@
     var price    = i.ley ? total : withIva;
 
     return {
-      acUnits:acUnits, dailyKwh:dailyKwh, otherKwh:otherKwh,
+      acUnits:acUnits, acDaily:acDaily, dailyKwh:dailyKwh, otherKwh:otherKwh,
       panels:panels, arrayKwp:arrayKwp, genDaily:genDaily,
       modules:modules, bankKwh:bankKwh, usableKwh:usableKwh,
       inverters:inverters, invW:invW, surgeW:surgeW,
@@ -617,6 +628,23 @@
     money: '<svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M8.5 7.5h5.2a2.8 2.8 0 0 1 0 5.6H9.9a2.8 2.8 0 0 0 0 5.6h5.6"/></svg>',
     calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><path d="M8 3v5M16 3v5M3.5 11h17"/></svg>',
   };
+
+
+  /* ============ plain-language live hints ============ */
+  function hint(id, txt){ var e = document.getElementById(id); if (e) e.textContent = txt; }
+  function hints(r, i){
+    var acPeak = r.acUnits * i.acWatts;
+    hint("hAc", r.acUnits === 0 ? "Sin aires acondicionados en el cálculo"
+        : r.acUnits+" aires piden "+dec(acPeak/1000,1)+" kW mientras están trabajando");
+    hint("hHours", "Los aires solos consumen "+dec(r.acDaily,1)+" kWh al día");
+    hint("hBat", i.bateria ? "El sistema sigue funcionando cuando se va la luz"
+                           : "Sin respaldo: los aires se apagan junto con la red");
+    hint("hCap", i.bateria
+        ? "Alcanza para ≈ "+dec(r.autonomyH,1)+" h con los aires prendidos"
+        : "No aplica mientras no haya baterías");
+    hint("hOther", "Consumo total de la casa: "+dec(r.dailyKwh,1)+" kWh al día → "+
+        r.panels+" paneles");
+  }
 
   /* ============ render: tiles ============ */
   function tiles(r, sch, i){
@@ -949,13 +977,14 @@
     document.getElementById("batNo").setAttribute("aria-pressed", String(!bateria));
     var sEl = document.getElementById("storage"), dEl = document.getElementById("dod");
     sEl.disabled = !bateria; dEl.disabled = !bateria;
-    sEl.closest("td").style.opacity = bateria ? "1" : ".4";
-    document.getElementById("dodField").classList.toggle("off", !bateria);
+    var sw = sEl.closest(".q"); if (sw) sw.classList.toggle("dim", !bateria);
+    var dw = dEl.closest(".af"); if (dw) dw.classList.toggle("dim", !bateria);
 
     var p1 = size(i, 1), pf = size(i, i.expansion), sch = schedule(p1, i);
 
     document.getElementById("hspBadge").textContent = dec(i.hsp,1);
     tiles(p1, sch, i);
+    hints(p1, i);
     verdict(p1, i);
     costChart(p1);
     if (!built){ pricesTable(i); suppliersTable(); built = true; }
