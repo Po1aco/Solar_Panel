@@ -217,6 +217,37 @@
   .disclose b{font-family:var(--font-ui);font-weight:800}
   .note{font-size:12.5px;color:var(--ink-2);font-weight:500;line-height:1.55;margin:16px 0 0}
   .note strong{font-family:var(--font-ui);font-weight:800;color:var(--black)}
+
+  /* inverter pick */
+  .pickcard{display:grid;grid-template-columns:1.1fr 1fr;border:var(--bd);border-radius:12px;overflow:hidden}
+  @media (max-width:820px){.pickcard{grid-template-columns:1fr}}
+  .pickmain{padding:16px 18px;background:var(--blue);color:#fff}
+  .pickmain .eyebrow{color:#fff;opacity:.9}
+  .pickmain h3{font-size:22px;margin-top:6px;color:#fff}
+  .picknote{margin:7px 0 0;font-size:13px;font-weight:600;opacity:.95}
+  .pickspecs{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pickspecs span{background:#fff;color:var(--black);border:2.5px solid var(--black);border-radius:8px;
+      padding:6px 10px;font-size:11px;font-weight:700;font-family:var(--font-ui);
+      display:flex;flex-direction:column;line-height:1.25}
+  .pickspecs b{font-family:var(--font-mono);font-size:14px}
+  .pickwhy{padding:16px 18px;background:var(--card);border-left:var(--bd)}
+  @media (max-width:820px){.pickwhy{border-left:0;border-top:var(--bd)}}
+  .pickwhy ul{margin:9px 0 0;padding-left:18px}
+  .pickwhy li{font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:7px;line-height:1.45}
+  .pickwhy li b{color:var(--black);font-family:var(--font-mono)}
+  .growth{margin-top:14px;padding:13px 15px;border:var(--bd);border-radius:12px;
+          box-shadow:var(--sh-sm);font-size:13.5px;font-weight:600;line-height:1.5}
+  .growth b{font-family:var(--font-ui);font-weight:800}
+  .growth.ok{background:#d9f7de} .growth.warn{background:#fff3cd} .growth.bad{background:#ffe0e8}
+  .vd{font-family:var(--font-ui);font-size:11px;font-weight:800;border:2.5px solid var(--black);
+      border-radius:6px;padding:3px 8px;display:inline-block;white-space:nowrap}
+  .vd.yes{background:var(--green);color:#fff} .vd.meh{background:var(--sunk)}
+  .vd.no{background:var(--pink);color:#fff}
+  tr.win td{background:#eefbf0}
+  .ctl-wide{width:190px!important}
+  .af select{width:100%;padding:8px 9px;font-family:var(--font-ui);font-size:12.5px;font-weight:700;
+      color:var(--black);background:var(--card);border:3px solid var(--black);border-radius:8px}
+  .af select:focus{outline:none;box-shadow:var(--sh-sm)}
   :focus-visible{outline:3px solid var(--purple);outline-offset:2px}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -333,6 +364,14 @@
         <div class="agroup">
           <span class="gtag" style="background:var(--purple)"></span>
           <h3>Los equipos</h3>
+          <div class="af"><div class="txt">
+            <label class="aflab" for="invPick">Modelo de inversor</label>
+            <span class="afhelp">En autom&aacute;tico el c&aacute;lculo elige el inversor m&aacute;s barato del cat&aacute;logo que aguante tu carga, tu pico de arranque y tus paneles. Elige uno a mano si ya tienes cotizado un modelo.</span>
+            </div><div class="ctl ctl-wide"><select id="invPick"></select></div></div>
+          <label class="aftoggle"><input type="checkbox" id="invFinal"><span>
+            <span class="aflab">Comprar pensando en la forma final</span>
+            <span class="afhelp">Compra desde la Fase 1 una plataforma que se pueda ampliar en paralelo hasta la forma final, en vez del inversor m&aacute;s barato para hoy. Cuesta un poco m&aacute;s ahora y evita cambiarlo despu&eacute;s.</span>
+            </span></label>
           <div class="af"><div class="txt"><label class="aflab" for="panelW">Potencia de cada panel</label><span class="afhelp">Lo que produce un panel en condiciones ideales. Hoy en Colombia lo com&uacute;n son 550 a 620 Wp. M&aacute;s potencia por panel = menos paneles y menos estructura.</span></div><div class="ctl"><input type="number" id="panelW" value="585" min="100" max="800" step="5"><span class="unit">Wp</span></div></div>
           <div class="af"><div class="txt"><label class="aflab" for="dod">Profundidad de descarga</label><span class="afhelp">Qu&eacute; porcentaje de la bater&iacute;a se puede usar sin acortarle la vida. El litio LiFePO&#8324; aguanta 90%; el plomo-&aacute;cido apenas 50%.</span></div><div class="ctl"><input type="number" id="dod" value="90" min="50" max="100" step="1"><span class="unit">%</span></div></div>
         </div>
@@ -365,11 +404,25 @@
     <div class="verdict" id="verdict"></div>
   </section>
 
+  <section class="block" style="--tab:var(--blue)">
+    <div class="block-head">
+      <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 2.5L5 13.5h5l-1.5 8 9-11.5h-5z"/></svg></span>
+        <div>
+          <div class="eyebrow">Paso 3 &mdash; el inversor</div>
+          <h2>Cu&aacute;l inversor te sirve</h2>
+          <p>El inversor no se elige &laquo;a ojo&raquo;: tiene que aguantar tres cosas a la vez &mdash; el consumo continuo, el golpe de arranque de los compresores y la potencia de tus paneles. El c&aacute;lculo revisa nueve modelos que se venden en Colombia y toma el m&aacute;s barato que cumple las tres.</p>
+        </div>
+      </div>
+    </div>
+    <div id="invPick_out"></div>
+    <div class="chart" style="margin-top:18px"><table class="data" id="invtable"></table></div>
+  </section>
+
   <section class="block" style="--tab:var(--pink)">
     <div class="block-head">
       <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="5"/><path d="M14.5 5.5A5 5 0 1 1 15 18.4"/></svg></span>
         <div>
-          <div class="eyebrow">Paso 3 &mdash; la plata</div>
+          <div class="eyebrow">Paso 4 &mdash; la plata</div>
           <h2>En qu&eacute; se va el dinero</h2>
           <p>Precios de mercado colombiano 2026. Cada barra est&aacute; etiquetada con su valor; la lista completa est&aacute; al final de la p&aacute;gina.</p>
         </div>
@@ -384,7 +437,7 @@
     <div class="block-head">
       <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V5a1 1 0 0 1 1-1h6l9 9-7 7z"/><circle cx="8" cy="8" r="1.6"/></svg></span>
         <div>
-          <div class="eyebrow">Paso 4 &mdash; de d&oacute;nde salen los precios</div>
+          <div class="eyebrow">Paso 5 &mdash; de d&oacute;nde salen los precios</div>
           <h2>Nada de precios inventados</h2>
           <p>Cada precio unitario es editable: si ya tienes una cotizaci&oacute;n real, escr&iacute;bela aqu&iacute; y todo el presupuesto se recalcula con tu n&uacute;mero.</p>
         </div>
@@ -407,7 +460,7 @@
     <div class="block-head">
       <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10V4h6M20 14v6h-6M4 4l7 7M20 20l-7-7"/></svg></span>
         <div>
-          <div class="eyebrow">Paso 5 &mdash; c&oacute;mo crece</div>
+          <div class="eyebrow">Paso 6 &mdash; c&oacute;mo crece</div>
           <h2>Empiezas peque&ntilde;o y ampl&iacute;as</h2>
           <p>La forma final corre <span id="expLabel">2,5&times;</span> la potencia inicial. Dejar lista desde el primer d&iacute;a la barra de 48&nbsp;V, la estructura y el espacio de gabinete es lo que hace que la segunda etapa sea una ampliaci&oacute;n y no una obra nueva.</p>
         </div>
@@ -421,7 +474,7 @@
     <div class="block-head">
       <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><path d="M8 3v5M16 3v5M3.5 11h17"/></svg></span>
         <div>
-          <div class="eyebrow">Paso 6 &mdash; cu&aacute;nto se demora</div>
+          <div class="eyebrow">Paso 7 &mdash; cu&aacute;nto se demora</div>
           <h2>Tiempo estimado</h2>
           <p>Numerado por orden de dependencias. La tramitolog&iacute;a corre en paralelo con las compras, as&iacute; que la ruta cr&iacute;tica es m&aacute;s corta que la suma de las partes.</p>
         </div>
@@ -436,7 +489,7 @@
     <div class="block-head">
       <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/></svg></span>
         <div>
-          <div class="eyebrow">Paso 7 &mdash; qu&eacute; hay que comprar</div>
+          <div class="eyebrow">Paso 8 &mdash; qu&eacute; hay que comprar</div>
           <h2>Lista de materiales</h2>
         </div>
       </div>
@@ -465,7 +518,7 @@
     permitGrid:1200000,
     permitOnly: 600000
   };
-  var PRICE_IDS = ["panel","battery","inverter","mount","bos","eng","labourPct"];
+  var PRICE_IDS = ["panel","battery","mount","bos","eng","labourPct"];
 
   var IVA = 0.19, RENTA_RATE = 0.35;
   var MODULE_KWH = 5.12, INVERTER_KW = 8, AC_MAX_W = 2120, INV_HEADROOM = 1.25;
@@ -494,7 +547,84 @@
   var NUMS = ["storage","dod","acUnits","acWatts","acHours","duty","otherKwh",
               "otherPeak","hsp","pr","panelW","expansion","margin"];
   var STORE = "dimensionador-solar-caribe.v2";
-  var bateria = DEF.bateria;
+  var bateria = DEF.bateria, restorePick = null;
+
+
+  /* ============ inverter catalogue (real 48 V hybrids sold in Colombia) ============
+     kw    = continuous AC output
+     pv    = max PV array the MPPTs accept (kWp)
+     surge = short peak the unit tolerates (motor start)
+     par   = how many can run in parallel
+     Prices are market estimates in COP and are editable in Paso 4. ============ */
+  var INVERTERS = [
+    { id:"gw5",  brand:"Growatt",  model:"SPF 5000 ES",         kw:5,  pv:6.0,  surge:10, par:6,
+      price:5900000, note:"MPPT 100 A, cargador 80 A",
+      url:"https://autosolar.co/inversores-solares-hibridos/growatt" },
+    { id:"dy5",  brand:"Deye",     model:"SUN-5K-SG01LP1-US",   kw:5,  pv:6.5,  surge:10, par:6,
+      price:6800000, note:"UL1741 / IEEE1547 — aceptado por los operadores de red en Colombia",
+      url:"https://artesolutions.com.co/producto/inversor-hibrido-deye-5000w-48v-220vac/" },
+    { id:"gw6",  brand:"Growatt",  model:"SPF 6000T DVM-MPV",   kw:6,  pv:7.5,  surge:12, par:6,
+      price:7200000, note:"Doble MPPT",
+      url:"https://autosolar.co/inversores-cargadores-48v/inversor-cargador-6000w-48v-growatt-spf-6000t-dvm-mpv" },
+    { id:"dy6",  brand:"Deye",     model:"SUN-6K-SG01LP1-US",   kw:6,  pv:7.8,  surge:12, par:6,
+      price:7600000, note:"Fase dividida",
+      url:"https://autosolar.co/inversores-solares-hibridos" },
+    { id:"fs8",  brand:"Felicity", model:"IVGM8KLP2G1",         kw:8,  pv:10.0, surge:16, par:6,
+      price:8900000, note:"Doble MPPT 5 kW + 5 kW, cargador 160 A",
+      url:"https://autosolar.co/kits-solares-hibridos/inversor-hibrido-felicity-solar-8000w-48v-ivgm8klp2g1" },
+    { id:"dy8",  brand:"Deye",     model:"SUN-8K-SG01LP1-US",   kw:8,  pv:10.4, surge:16, par:6,
+      price:9500000, note:"Fase dividida, doble MPPT",
+      url:"https://ineldec.com/producto/inversor-hibrido-8kw-48v-deye-sun-8k-sg01lp1/" },
+    { id:"gw10", brand:"Growatt",  model:"SPF 10000T DVM",      kw:10, pv:12.0, surge:20, par:6,
+      price:11500000, note:"Paralelizable hasta 6 unidades",
+      url:"https://autosolar.co/inversores-cargadores-48v/inversor-cargador-growatt-spf-10000t-dvm" },
+    { id:"dy10", brand:"Deye",     model:"SUN-10K-SG02LP2-US",  kw:10, pv:13.0, surge:20, par:6,
+      price:11800000, note:"Fase dividida",
+      url:"https://autosolar.co/inversores-solares-hibridos" },
+    { id:"dy12", brand:"Deye",     model:"SUN-12K-SG02LP2-US",  kw:12, pv:15.6, surge:24, par:6,
+      price:13900000, note:"97,6% de eficiencia",
+      url:"https://www.emergente.com.co/producto/inversor-hibrido-12kw-48v-fase-dividida-deye" }
+  ];
+  function invById(id){
+    for (var k=0;k<INVERTERS.length;k++) if (INVERTERS[k].id===id) return INVERTERS[k];
+    return null;
+  }
+  /* smallest n of this model that satisfies the three limits; null if even max parallel fails */
+  function minUnits(m, req){
+    for (var n=1; n<=(m.par||1); n++){
+      if (m.kw*n*1000 >= req.cont && m.pv*n >= req.pv && m.surge*n*1000 >= req.surge) return n;
+    }
+    return null;
+  }
+  /* why a model cannot serve the requirement, even in parallel */
+  function whyNot(m, req){
+    var n = m.par||1;
+    if (m.kw*n*1000  < req.cont)  return "potencia";
+    if (m.pv*n       < req.pv)    return "entrada PV";
+    if (m.surge*n*1000 < req.surge) return "pico de arranque";
+    return null;
+  }
+  /* cheapest model+count for one requirement */
+  function bestCombo(req){
+    var best = null;
+    INVERTERS.forEach(function(m){
+      var n = minUnits(m, req); if (n === null) return;
+      var cost = n * m.price;
+      if (!best || cost < best.cost || (cost === best.cost && n < best.n)) best = {m:m, n:n, cost:cost};
+    });
+    return best;
+  }
+  /* cheapest model that serves today AND can be paralleled up to the final form */
+  function bestComboFuture(req, reqF){
+    var best = null;
+    INVERTERS.forEach(function(m){
+      var n = minUnits(m, req), nF = minUnits(m, reqF);
+      if (n === null || nF === null) return;
+      var cost = n * m.price;
+      if (!best || cost < best.cost) best = {m:m, n:n, cost:cost, nFinal:nF};
+    });
+    return best;
+  }
 
   /* ============ formatting ============ */
   function cop(v){ return "$" + Math.round(v).toLocaleString("es-CO"); }
@@ -519,17 +649,24 @@
     var i = {};
     NUMS.forEach(function(k){ i[k] = clampEl(document.getElementById(k), DEF[k]); });
     i.ley     = document.getElementById("ley").checked;
+    i.invFinal= document.getElementById("invFinal").checked;
+    var ip = document.getElementById("invPick");
+    i.invPick = (ip && ip.value !== "auto") ? ip.value : null;
     i.grid    = document.getElementById("grid").checked;
     i.bateria = bateria;
     PRICE_IDS.forEach(function(k){
       var el = document.getElementById("p_"+k);
       if (el) P[k] = clampEl(el, P[k]);
     });
+    INVERTERS.forEach(function(m){
+      var el = document.getElementById("iv_"+m.id);
+      if (el) m.price = clampEl(el, m.price);
+    });
     return i;
   }
 
   /* ============ sizing model ============ */
-  function size(i, scale){
+  function size(i, scale, pin, reqFuture){
     var pr = i.pr/100, dod = i.dod/100, duty = i.duty/100;
 
     var acUnits    = Math.round(i.acUnits * scale);
@@ -558,8 +695,23 @@
     // conversion
     var contW  = acUnits * i.acWatts + otherPeak;
     var surgeW = acUnits * AC_MAX_W  + otherPeak;
-    var inverters = Math.max(1, Math.ceil(contW * INV_HEADROOM / (INVERTER_KW*1000)));
-    var invW = inverters * INVERTER_KW * 1000;
+    var invReq = { cont: contW * INV_HEADROOM, pv: arrayKwp, surge: surgeW };
+    var pinned = pin ? invById(pin) : null;
+    var combo = null, pinFailed = false;
+    if (pinned){
+      var pn = minUnits(pinned, invReq);
+      if (pn !== null) combo = { m:pinned, n:pn, cost:pn*pinned.price };
+      else pinFailed = true;
+    }
+    if (!combo && reqFuture) combo = bestComboFuture(invReq, reqFuture);
+    if (!combo) combo = bestCombo(invReq);
+    if (!combo) combo = { m: INVERTERS[INVERTERS.length-1], n: (INVERTERS[INVERTERS.length-1].par||1),
+                          cost: (INVERTERS[INVERTERS.length-1].par||1)*INVERTERS[INVERTERS.length-1].price,
+                          short: true };
+    var inverters = combo.n, invModel = combo.m;
+    var invW = invModel.kw * inverters * 1000;
+    var invSurgeW = invModel.surge * inverters * 1000;
+    var invPvKwp = invModel.pv * inverters;
 
     // autonomy
     var avgW = acUnits * i.acWatts * duty + otherKwh*1000/24;
@@ -570,7 +722,7 @@
     c.pv      = panels * P.panel;
     c.storage = modules * P.battery;
     var bos   = panels > 0 ? P.bos + panels*P.bosPer : 0;
-    c.inv     = inverters * P.inverter + bos;
+    c.inv     = combo.cost + bos;
     c.mount   = panels * P.mount;
     var equipment = c.pv + c.storage + c.inv + c.mount;
     c.labour  = equipment * (P.labourPct/100) + P.eng;
@@ -585,7 +737,9 @@
       acUnits:acUnits, acDaily:acDaily, dailyKwh:dailyKwh, otherKwh:otherKwh,
       panels:panels, arrayKwp:arrayKwp, genDaily:genDaily,
       modules:modules, bankKwh:bankKwh, usableKwh:usableKwh,
-      inverters:inverters, invW:invW, surgeW:surgeW,
+      inverters:inverters, invW:invW, surgeW:surgeW, invModel:invModel, invReq:invReq,
+      invSurgeW:invSurgeW, invPvKwp:invPvKwp, invCost:combo.cost, invShort:!!combo.short,
+      invPinFailed:pinFailed, invNFinal:combo.nFinal || null,
       autonomyH:autonomyH, avgW:avgW, bos:bos,
       cost:c, subtotal:subtotal, total:total, price:price,
       ivaSaved: i.ley ? withIva-total : 0,
@@ -658,7 +812,9 @@
     tile("Paneles solares", r.panels, "arreglo de "+dec(r.arrayKwp,2)+" kWp", "", ICO.sun, "var(--pink)");
     if (i.bateria) tile("Banco de baterías", dec(r.bankKwh,1)+" kWh", r.modules+" × 5,12 kWh · 48 V", "", ICO.battery, "var(--gold)");
     else           tile("Banco de baterías", "—", "sin almacenamiento", "none", ICO.battery, "var(--sunk)");
-    tile("Inversor", dec(r.invW/1000,0)+" kW", r.inverters+" × 8 kW híbrido", "", ICO.bolt, "var(--purple)");
+    tile("Inversor", dec(r.invW/1000,0)+" kW",
+         (r.inverters>1 ? r.inverters+" × " : "")+r.invModel.brand+" "+r.invModel.model,
+         "", ICO.bolt, "var(--purple)");
     tile("Costo de capital", copM(r.price), "COP, instalado", "lead", ICO.money, "#ffffff");
     tile("Cronograma", sch.days+" d", "≈ "+dec(sch.days/7,1)+" semanas", "", ICO.calendar, "var(--lime)");
     document.getElementById("tiles").innerHTML = h;
@@ -693,13 +849,18 @@
         dec(need*(i.dod/100),0)+" kWh para cubrir la jornada completa."]);
     }
 
-    var head = r.surgeW > 0 ? r.invW/r.surgeW : 99;
-    if (head >= 1.15) out.push(["ok","✓","El inversor tiene holgura de arranque",
-      dec(r.invW/1000,0)+" kW contra un pico de "+dec(r.surgeW/1000,1)+" kW ("+dec(r.surgeW,0)+
-      " W con todos los compresores al máximo)."]);
-    else out.push(["warn","!","La holgura del inversor es ajustada",
-      dec(r.invW/1000,0)+" kW contra un pico de "+dec(r.surgeW/1000,1)+
-      " kW. Agrega una unidad en paralelo antes de cargarlo al tope."]);
+    var name = r.invModel.brand+" "+r.invModel.model;
+    if (r.invShort) out.push(["bad","×","Ningún inversor del catálogo alcanza",
+      "La carga pide "+dec(r.invReq.cont/1000,1)+" kW continuos y "+dec(r.surgeW/1000,1)+
+      " kW de pico. Ni "+r.inverters+" × "+name+" lo cubren: reduce cargas simultáneas o "+
+      "divide la casa en dos sistemas."]);
+    else if (r.invSurgeW >= r.surgeW * 1.15) out.push(["ok","✓","El inversor soporta el arranque",
+      r.inverters+" × "+name+" da "+dec(r.invW/1000,0)+" kW continuos y aguanta "+
+      dec(r.invSurgeW/1000,0)+" kW de pico, contra los "+dec(r.surgeW/1000,1)+
+      " kW que piden los compresores al arrancar juntos."]);
+    else out.push(["warn","!","El pico de arranque queda justo",
+      "El "+name+" aguanta "+dec(r.invSurgeW/1000,0)+" kW de pico contra "+dec(r.surgeW/1000,1)+
+      " kW que piden los compresores. Funciona, pero sin margen: no le sumes cargas fuertes."]);
 
     document.getElementById("verdict").innerHTML = out.map(function(v){
       return '<div class="chk '+v[0]+'"><span class="ic" aria-hidden="true">'+v[1]+'</span><span><b>'+
@@ -785,6 +946,7 @@
         ["Tamaño del arreglo", dec(r.arrayKwp,2)+" kWp"],
         ["Almacenamiento útil", i.bateria ? dec(r.usableKwh,1)+" kWh" : "sin batería"],
         ["Capacidad del inversor", dec(r.invW/1000,0)+" kW"],
+        ["Inversor", (r.inverters>1 ? r.inverters+"× " : "")+r.invModel.brand+" "+r.invModel.model],
         ["Costo de capital",     copM(r.price)+" COP"]
       ].map(function(x){ return '<div class="prow"><span>'+x[0]+'</span><b>'+esc(x[1])+'</b></div>'; }).join("");
     }
@@ -802,13 +964,117 @@
     document.getElementById("expNote").innerHTML =
       "<strong>Para pasar de la Fase 1 a la forma final:</strong> agregar "+addP+" paneles ("+
       dec(b.arrayKwp-a.arrayKwp,2)+" kWp), "+bat+" y "+
-      (addI > 0 ? addI+" inversor"+(addI>1?"es":"")+" de 8 kW en paralelo"
-                : "ningún inversor adicional — el de la Fase 1 ya lo soporta")+
+      (b.invModel.id === a.invModel.id
+          ? (addI > 0 ? addI+" "+a.invModel.model+" más en paralelo"
+                      : "ningún inversor adicional — el de la Fase 1 ya lo soporta")
+          : "cambiar el inversor por "+(b.inverters>1?b.inverters+"× ":"")+b.invModel.brand+" "+b.invModel.model)+
       ", por unos "+copM(b.price-a.price)+" COP más. Deja reservada desde la Fase 1 el área de cubierta, "+
       "la tubería DC y el espacio de gabinete para los "+b.panels+" paneles"+
       (i.bateria ? " y los "+b.modules+" módulos" : "")+
       " — eso es exactamente lo que hace que el sistema sea ampliable.";
     document.getElementById("expLabel").textContent = dec(i.expansion,1)+"×";
+  }
+
+
+  /* ============ render: inverter choice ============ */
+  function invSection(a, b, i, nF){
+    var m = a.invModel, name = m.brand+" "+m.model;
+    var h = '<div class="pickcard">'+
+      '<div class="pickmain">'+
+        '<div class="eyebrow">'+(i.invPick ? "Elegido a mano" : "La opción más barata que cumple")+'</div>'+
+        '<h3>'+(a.inverters>1 ? a.inverters+" × " : "")+esc(name)+'</h3>'+
+        '<p class="picknote">'+esc(m.note)+'</p>'+
+        '<div class="pickspecs">'+
+          '<span><b>'+dec(a.invW/1000,0)+' kW</b>continuos</span>'+
+          '<span><b>'+dec(a.invSurgeW/1000,0)+' kW</b>de pico</span>'+
+          '<span><b>'+dec(a.invPvKwp,1)+' kWp</b>de PV admitido</span>'+
+          '<span><b>'+cop(a.invCost)+'</b>en total</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="pickwhy">'+
+        '<div class="eyebrow">Por qué este</div>'+
+        '<ul>'+
+          '<li>Tu carga pide <b>'+dec(a.invReq.cont/1000,1)+' kW</b> continuos (el consumo simultáneo más 25% de holgura) y este da '+dec(a.invW/1000,0)+' kW.</li>'+
+          '<li>Los compresores piden <b>'+dec(a.surgeW/1000,1)+' kW</b> en el arranque y aguanta '+dec(a.invSurgeW/1000,0)+' kW.</li>'+
+          '<li>Tus '+a.panels+' paneles suman <b>'+dec(a.arrayKwp,2)+' kWp</b> y sus MPPT admiten hasta '+dec(a.invPvKwp,1)+' kWp.</li>'+
+        '</ul>'+
+      '</div>'+
+    '</div>';
+
+    // does this platform reach the final form, or does it get replaced?
+    var cls, msg;
+    if (a.invShort){
+      cls="bad"; msg="<b>Ningún inversor del catálogo alcanza esta carga.</b> Reduce el consumo simultáneo o divide la instalación en dos sistemas independientes.";
+    } else if (nF && nF > a.inverters){
+      cls="ok"; msg="<b>Se amplía sin botar nada.</b> Para la forma final basta con poner "+(nF-a.inverters)+" "+esc(m.model)+" más en paralelo, hasta "+nF+" unidades ("+dec(m.kw*nF,0)+" kW). Deja previstos desde ahora el espacio de gabinete y la barra de 48 V.";
+    } else if (nF){
+      cls="ok"; msg="<b>Se amplía sin botar nada.</b> Este mismo inversor cubre también la forma final: del lado de conversión no hay que agregar ni cambiar nada.";
+    } else if (b.invShort){
+      cls="warn"; msg="<b>La forma final no le cabe a ningún inversor del catálogo.</b> Ni "+
+        (m.par||1)+" unidades en paralelo del modelo más grande alcanzan lo que pedirá la Fase 2, "+
+        "así que la ampliación tendría que dividirse en dos sistemas independientes. Para hoy, "+
+        "el inversor de arriba sí cumple.";
+    } else {
+      cls="warn"; msg="<b>Este inversor no llega a la forma final.</b> Ni "+(m.par||1)+
+        " unidades en paralelo alcanzan lo que pedirá la Fase 2, así que habría que cambiarlo por "+
+        (b.inverters>1?b.inverters+"× ":"")+esc(b.invModel.brand+" "+b.invModel.model)+
+        ". Si piensas ampliar, activa <em>«Comprar pensando en la forma final»</em> en los ajustes avanzados.";
+    }
+    if (a.invPinFailed) msg = "<b>El modelo que elegiste a mano no alcanza para esta carga</b>, así que el cálculo volvió a la selección automática. "+msg;
+    h += '<div class="growth '+cls+'">'+msg+'</div>';
+    document.getElementById("invPick_out").innerHTML = h;
+  }
+
+  function invTableBuild(){
+    var h = '<caption id="invcap"></caption>'+
+      '<thead><tr><th>Modelo</th><th class="n">kW</th><th class="n">PV m\u00e1x</th>'+
+      '<th class="n">Unid.</th><th class="n">Precio c/u</th><th class="n">Costo</th>'+
+      '<th>Resultado</th></tr></thead><tbody>';
+    INVERTERS.forEach(function(m){
+      h += '<tr id="ir_'+m.id+'">'+
+        '<td><strong>'+esc(m.brand)+' '+esc(m.model)+'</strong>'+
+          '<span class="spec">'+esc(m.note)+' &middot; hasta '+(m.par||1)+' en paralelo</span></td>'+
+        '<td class="n">'+dec(m.kw,0)+'</td>'+
+        '<td class="n">'+dec(m.pv,1)+'</td>'+
+        '<td class="n" id="iu_'+m.id+'"></td>'+
+        '<td class="n"><div class="price-in"><input type="number" id="iv_'+m.id+'" value="'+m.price+
+          '" min="0" step="100000" aria-label="Precio '+esc(m.brand+" "+m.model)+'"></div></td>'+
+        '<td class="n" id="ic_'+m.id+'"></td>'+
+        '<td id="iw_'+m.id+'"></td>'+
+      '</tr>';
+    });
+    document.getElementById("invtable").innerHTML = h + '</tbody>';
+  }
+
+  function invTableUpdate(a){
+    var req = a.invReq, chosen = a.invModel.id;
+    var cap = document.getElementById("invcap");
+    if (cap) cap.innerHTML = 'Los nueve modelos del cat\u00e1logo, medidos contra <strong>tu</strong> carga: '+
+      dec(req.cont/1000,1)+' kW continuos, '+dec(req.surge/1000,1)+' kW de pico de arranque y '+
+      dec(req.pv,2)+' kWp de paneles. Los precios son editables y cambian la elecci\u00f3n.';
+    INVERTERS.forEach(function(m){
+      var n = minUnits(m, req), bad = whyNot(m, req), win = m.id === chosen;
+      var row = document.getElementById("ir_"+m.id);
+      if (row) row.className = win ? "win" : "";
+      var u = document.getElementById("iu_"+m.id); if (u) u.textContent = n || "\u2014";
+      var c = document.getElementById("ic_"+m.id); if (c) c.textContent = n ? cop(n*m.price) : "\u2014";
+      var w = document.getElementById("iw_"+m.id);
+      if (w) w.innerHTML = (bad
+          ? '<span class="vd no">No alcanza: '+bad+'</span>'
+          : (win ? '<span class="vd yes">\u2713 Elegido</span>'
+                 : '<span class="vd meh">Sirve, pero m\u00e1s caro</span>'))+
+        '<span class="spec"><a href="'+m.url+'" target="_blank" rel="noopener">ver proveedor</a></span>';
+    });
+  }
+
+  function buildPick(){
+    var sel = document.getElementById("invPick");
+    if (!sel) return;
+    var h = '<option value="auto">Automático — el más barato que cumpla</option>';
+    INVERTERS.forEach(function(m){
+      h += '<option value="'+m.id+'">'+m.brand+' '+m.model+' ('+dec(m.kw,0)+' kW)</option>';
+    });
+    sel.innerHTML = h;
   }
 
   /* ============ render: price provenance (editable) ============ */
@@ -839,7 +1105,6 @@
   var PRICE_ROWS = [
     ["panel","Panel solar","por módulo","cop"],
     ["battery","Módulo LiFePO₄ 5,12 kWh","48 V · 100 Ah · rack","cop"],
-    ["inverter","Inversor híbrido 8 kW","paralelizable, doble MPPT","cop"],
     ["mount","Estructura de montaje","por panel","cop"],
     ["bos","Balance del sistema","base del proyecto","cop"],
     ["eng","Ingeniería y RETIE","valor fijo","cop"],
@@ -895,8 +1160,10 @@
                 r.panels, P.panel, r.cost.pv]);
     if (i.bateria) items.push(["storage","Módulo de batería LiFePO₄","5,12 kWh · 48 V · 100 Ah · rack",
                 r.modules, P.battery, r.cost.storage]);
-    items.push(["inv","Inversor/cargador híbrido","8 kW · 48 V · paralelizable, doble MPPT",
-                r.inverters, P.inverter, r.inverters*P.inverter]);
+    items.push(["inv","Inversor "+r.invModel.brand+" "+r.invModel.model,
+                dec(r.invModel.kw,0)+" kW · 48 V · hasta "+dec(r.invModel.pv,1)+
+                " kWp de PV · "+r.invModel.note,
+                r.inverters, r.invModel.price, r.invCost]);
     items.push(["inv","Balance del sistema","Protecciones DC/AC, DPS, puesta a tierra, cableado",
                 1, r.bos, r.bos]);
     items.push(["mount","Estructura de montaje","Riel de aluminio anodizado, fijación grado costero",
@@ -950,6 +1217,8 @@
       var o = {}; NUMS.forEach(function(k){ o[k]=i[k]; });
       o.ley=i.ley; o.grid=i.grid; o.bateria=i.bateria;
       PRICE_IDS.forEach(function(k){ o["p_"+k]=P[k]; });
+      o.inv={}; INVERTERS.forEach(function(m){ o.inv[m.id]=m.price; });
+      o.invFinal=i.invFinal; o.invPick=i.invPick;
       localStorage.setItem(STORE, JSON.stringify(o));
     } catch(e){}
   }
@@ -965,6 +1234,9 @@
     if (typeof v.grid==="boolean") document.getElementById("grid").checked = v.grid;
     if (typeof v.bateria==="boolean") bateria = v.bateria;
     PRICE_IDS.forEach(function(k){ if (isFinite(v["p_"+k])) P[k] = v["p_"+k]; });
+    if (v.inv) INVERTERS.forEach(function(m){ if (isFinite(v.inv[m.id])) m.price = v.inv[m.id]; });
+    if (typeof v.invFinal==="boolean") document.getElementById("invFinal").checked = v.invFinal;
+    if (v.invPick) restorePick = v.invPick;
   }
 
   /* ============ main ============ */
@@ -980,24 +1252,35 @@
     var sw = sEl.closest(".q"); if (sw) sw.classList.toggle("dim", !bateria);
     var dw = dEl.closest(".af"); if (dw) dw.classList.toggle("dim", !bateria);
 
-    var p1 = size(i, 1), pf = size(i, i.expansion), sch = schedule(p1, i);
+    var reqF = size(i, i.expansion).invReq;                 // what the final form will demand
+    var p1  = size(i, 1, i.invPick, i.invFinal ? reqF : null);
+    // can the Phase-1 platform itself be paralleled up to the final form?
+    var nF  = minUnits(p1.invModel, reqF);
+    // price Phase 2 on that same platform when it can grow, so the delta is the real upgrade path
+    var pf  = size(i, i.expansion, nF ? p1.invModel.id : i.invPick, null);
+    var sch = schedule(p1, i);
 
     document.getElementById("hspBadge").textContent = dec(i.hsp,1);
     tiles(p1, sch, i);
     hints(p1, i);
     verdict(p1, i);
     costChart(p1);
-    if (!built){ pricesTable(i); suppliersTable(); built = true; }
-    else { var pd=document.querySelector("#prices .derived");
+    invSection(p1, pf, i, nF);
+    if (!built){ pricesTable(i); suppliersTable(); invTableBuild(); built = true; }
+    else { var pd = document.querySelector("#prices .derived");
            if (pd) pd.textContent = "= "+cop(P.panel/i.panelW)+"/Wp"; }
+    invTableUpdate(p1);
     phases(p1, pf, i);
     gantt(sch);
     bom(p1, i);
     save(i);
   }
 
+  document.addEventListener("change", function(e){
+    if (e.target.tagName === "SELECT") run();
+  });
   document.addEventListener("input", function(e){
-    if (e.target.tagName === "INPUT") run();
+    if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") run();
   });
   document.getElementById("batYes").addEventListener("click", function(){ bateria = true;  run(); });
   document.getElementById("batNo").addEventListener("click",  function(){ bateria = false; run(); });
@@ -1006,14 +1289,22 @@
     document.getElementById("ley").checked  = DEF.ley;
     document.getElementById("grid").checked = DEF.grid;
     bateria = DEF.bateria;
-    P.panel=520000; P.battery=6500000; P.inverter=9500000; P.mount=180000;
+    P.panel=520000; P.battery=6500000; P.mount=180000;
     P.bos=1400000; P.eng=2500000; P.labourPct=15;
     PRICE_IDS.forEach(function(k){ var el=document.getElementById("p_"+k); if (el) el.value = P[k]; });
+    var DEFIV={gw5:5900000,dy5:6800000,gw6:7200000,dy6:7600000,fs8:8900000,dy8:9500000,
+               gw10:11500000,dy10:11800000,dy12:13900000};
+    INVERTERS.forEach(function(m){ if (DEFIV[m.id]) m.price = DEFIV[m.id];
+      var el=document.getElementById("iv_"+m.id); if (el) el.value = m.price; });
+    document.getElementById("invFinal").checked = false;
+    var sp=document.getElementById("invPick"); if (sp) sp.value = "auto";
     run();
   });
   document.getElementById("rail").addEventListener("submit", function(e){ e.preventDefault(); });
 
   restore();
+  buildPick();
+  if (restorePick){ var sp0 = document.getElementById("invPick"); if (sp0) sp0.value = restorePick; }
   run();
 })();
 </script>
