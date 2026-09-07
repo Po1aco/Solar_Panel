@@ -1,782 +1,985 @@
-<title>Caribe Solar Sizer</title>
+<title>Dimensionador Solar Caribe</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600;700;800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
   :root{
     color-scheme: light;
-    --ground:#f6f8f7;
-    --surface:#ffffff;
-    --surface-sunk:#eff3f2;
-    --ink:#0e1c1a;
-    --ink-2:#4c5f5c;
-    --ink-3:#7d8d8a;
-    --line:#dbe4e2;
-    --line-soft:#e8eeed;
-    --accent:#008574;
-    --accent-deep:#00614f;
-    --accent-wash:#e6f2f0;
-    --solar:#c06a00;
-    --solar-wash:#fbf0e2;
-
-    --s1:#008574;  /* PV modules */
-    --s2:#c06a00;  /* Storage */
-    --s3:#2e5aa8;  /* Inverter */
-    --s4:#a63a62;  /* Structure */
-    --s5:#6e56c8;  /* Labour */
-    --s6:#c4453c;  /* Permits */
-
-    --font-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+    --yellow:#ffc81f; --pink:#fc3f6d; --purple:#7c5cfa; --green:#35c93f;
+    --lime:#afd32b;   --gold:#f7d189;  --blue:#7c5cfa;   --orange:#fc3f6d;
+    --gray:#a8a8a8;
+    --cream:#fdfbf6; --card:#ffffff; --sunk:#f2ede2;
+    --black:#111111; --ink-2:#4a4a46; --ink-3:#7c7a72;
+    --line:#111111;
+    --font-display:"Archivo Black","Archivo","Helvetica Neue",Arial,sans-serif;
+    --font-ui:"Archivo","Helvetica Neue",Arial,sans-serif;
     --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
     --font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+    --bd:3.5px solid var(--black);
+    --sh:6px 6px 0 var(--black);
+    --sh-sm:4px 4px 0 var(--black);
   }
-
   *{box-sizing:border-box}
-  body{
-    margin:0;
-    background:var(--ground);
-    color:var(--ink);
-    font-family:var(--font-body);
-    font-size:15px;
-    line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,h4{font-family:var(--font-display);margin:0;text-wrap:balance;letter-spacing:-.015em}
-  .num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+  body{margin:0;background:var(--yellow);color:var(--black);font-family:var(--font-body);
+       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{margin:0;font-family:var(--font-display);font-weight:400;
+              letter-spacing:-.02em;text-wrap:balance;line-height:1.08}
 
-  .eyebrow{
-    font-family:var(--font-display);
-    font-size:10.5px;font-weight:700;text-transform:uppercase;
-    letter-spacing:.14em;color:var(--ink-3);
-  }
+  /* decorative field behind the sheet, like the reference */
+  .blob{position:fixed;z-index:0;pointer-events:none;border:var(--bd)}
+  .blob.a{width:380px;height:380px;border-radius:50%;background:var(--pink);left:-170px;top:90px}
+  .blob.b{width:320px;height:320px;border-radius:18px;background:var(--purple);right:-140px;bottom:-90px}
+  @media (max-width:1100px){.blob{display:none}}
 
-  /* ---------- shell ---------- */
-  .masthead{
-    background:var(--surface);
-    border-bottom:1px solid var(--line);
-    padding:22px 32px 20px;
-  }
-  .masthead-in{max-width:1320px;margin:0 auto;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between}
-  .masthead h1{font-size:26px;font-weight:700;line-height:1.1}
-  .masthead p{margin:6px 0 0;color:var(--ink-2);font-size:14.5px;max-width:62ch}
-  .sun{
-    display:inline-flex;align-items:center;gap:7px;
-    font-family:var(--font-display);font-size:11px;font-weight:600;
-    text-transform:uppercase;letter-spacing:.1em;
-    background:var(--solar-wash);color:#8a4c00;
-    padding:5px 11px;border-radius:100px;white-space:nowrap;
-  }
-  .sun b{font-family:var(--font-mono);font-size:12px;letter-spacing:0}
+  .sheet{position:relative;z-index:1;max-width:1300px;margin:26px auto;background:var(--cream);
+         border:var(--bd);border-radius:20px;box-shadow:11px 11px 0 var(--black);overflow:hidden}
+  @media (max-width:900px){.sheet{margin:12px;border-radius:14px;box-shadow:6px 6px 0 var(--black)}}
 
-  .wrap{max-width:1320px;margin:0 auto;padding:26px 32px 60px;display:grid;grid-template-columns:330px minmax(0,1fr);gap:26px;align-items:start}
-  @media (max-width:1020px){
-    .wrap{grid-template-columns:1fr;padding:20px 18px 48px}
-    .masthead{padding:18px}
-  }
+  /* masthead */
+  .masthead{background:var(--yellow);border-bottom:var(--bd);padding:26px 30px 24px}
+  .masthead-in{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+  .eyebrow{font-family:var(--font-ui);font-size:10.5px;font-weight:800;text-transform:uppercase;
+           letter-spacing:.14em;color:var(--black)}
+  .masthead h1{font-size:46px;margin-top:8px;letter-spacing:-.035em}
+  @media (max-width:700px){.masthead h1{font-size:28px}}
+  .masthead p{margin:10px 0 0;font-size:15px;max-width:62ch;font-weight:600}
+  .sun{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-ui);font-size:11px;
+       font-weight:800;text-transform:uppercase;letter-spacing:.1em;background:var(--card);
+       color:var(--black);padding:9px 14px;border:var(--bd);border-radius:10px;
+       box-shadow:var(--sh-sm);white-space:nowrap}
+  .sun b{font-family:var(--font-mono);font-size:13px;letter-spacing:0}
 
-  /* ---------- control rail ---------- */
-  .rail{position:sticky;top:20px;display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .wrap{padding:26px 30px 40px;display:grid;grid-template-columns:318px minmax(0,1fr);gap:24px;align-items:start}
+  @media (max-width:1020px){.wrap{grid-template-columns:1fr;padding:20px 16px 32px}}
+
+  /* ---- rail ---- */
+  .rail{position:sticky;top:20px;background:var(--card);border:var(--bd);border-radius:14px;
+        box-shadow:var(--sh);overflow:hidden}
   @media (max-width:1020px){.rail{position:static}}
-  .rail-head{padding:14px 16px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .rail-head h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
-  .reset{
-    background:none;border:1px solid var(--line);color:var(--ink-2);
-    font-family:var(--font-display);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
-    padding:4px 9px;border-radius:5px;cursor:pointer;
-  }
-  .reset:hover{border-color:var(--accent);color:var(--accent)}
-  .reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .rail-head{padding:14px 16px;border-bottom:var(--bd);background:var(--lime);display:flex;
+             align-items:center;justify-content:space-between;gap:10px}
+  .rail-head h2{font-size:15px}
+  .reset{background:var(--card);border:3px solid var(--black);color:var(--black);cursor:pointer;
+         font-family:var(--font-ui);font-size:10.5px;font-weight:800;text-transform:uppercase;
+         letter-spacing:.08em;padding:6px 10px;border-radius:7px;box-shadow:2px 2px 0 var(--black)}
+  .reset:hover{background:var(--yellow)}
+  .reset:active{box-shadow:0 0 0 var(--black);transform:translate(2px,2px)}
 
-  fieldset{border:0;margin:0;padding:15px 16px;border-bottom:1px solid var(--line-soft)}
+  fieldset{border:0;margin:0;padding:15px 16px;border-bottom:2px dashed #d8d2c4}
   fieldset:last-of-type{border-bottom:0}
-  legend{padding:0 0 10px;width:100%}
-
-  .field{display:grid;grid-template-columns:1fr 92px;gap:8px 10px;align-items:center;margin-bottom:11px}
+  legend{padding:0 0 11px;width:100%}
+  .field{display:grid;grid-template-columns:1fr 88px;gap:8px 10px;align-items:center;margin-bottom:12px}
   .field:last-child{margin-bottom:0}
-  .field > label{font-size:13.5px;color:var(--ink-2);line-height:1.3}
-  .field > label small{display:block;color:var(--ink-3);font-size:11.5px}
-  .field input[type=number]{
-    width:100%;padding:6px 8px;
-    font-family:var(--font-mono);font-size:13.5px;font-variant-numeric:tabular-nums;
-    text-align:right;color:var(--ink);
-    background:var(--surface);border:1px solid var(--line);border-radius:5px;
-  }
-  .field input[type=number]:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+  .field > label{font-size:13.5px;font-weight:600;color:var(--black);line-height:1.3}
+  .field > label small{display:block;color:#7c7a72;font-size:11.5px;font-weight:400}
+  input[type=number]{width:100%;padding:7px 9px;font-family:var(--font-mono);font-size:13.5px;
+       font-weight:700;font-variant-numeric:tabular-nums;text-align:right;color:var(--black);
+       background:var(--card);border:3px solid var(--black);border-radius:8px}
+  input[type=number]:focus{outline:none;box-shadow:3px 3px 0 var(--black);background:#fffbe9}
+  .field.off{opacity:.4}
+  .field.off input{background:var(--sunk);cursor:not-allowed}
 
-  .hero-field{background:var(--accent-wash);margin:-15px -16px 15px;padding:15px 16px;border-bottom:1px solid #cfe6e2}
-  .hero-field .field{grid-template-columns:1fr 110px;margin-bottom:0}
-  .hero-field label{color:var(--accent-deep);font-weight:600;font-size:14px}
-  .hero-field label small{color:#3d7d72;font-weight:400}
-  .hero-field input[type=number]{font-size:19px;font-weight:700;border-color:#b6dbd5;padding:7px 9px}
+  .toggles{display:flex;flex-direction:column;gap:10px}
+  .toggle{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;font-weight:600;cursor:pointer}
+  .toggle input{margin:1px 0 0;accent-color:var(--purple);width:17px;height:17px;flex:none}
+  .toggle span small{display:block;color:#7c7a72;font-size:11.5px;font-weight:400}
 
-  .toggles{display:flex;flex-direction:column;gap:9px}
-  .toggle{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);cursor:pointer}
-  .toggle input{margin:2px 0 0;accent-color:var(--accent);width:15px;height:15px;flex:none}
-  .toggle span small{display:block;color:var(--ink-3);font-size:11.5px}
+  /* ---- canvas ---- */
+  .canvas{display:flex;flex-direction:column;gap:30px;min-width:0}
+  section.block{position:relative;background:var(--card);border:var(--bd);border-radius:14px;
+                box-shadow:var(--sh);padding:20px 22px}
+  /* folder tab, straight from the reference */
+  section.block::before{content:"";position:absolute;left:22px;top:-17px;width:116px;height:18px;
+    background:var(--tab,var(--yellow));border:var(--bd);border-bottom:0;border-radius:9px 9px 0 0}
+  .block-head{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+  .titleset{display:flex;gap:12px;align-items:flex-start;min-width:0}
+  .icon{width:48px;height:48px;flex:none;border:var(--bd);border-radius:10px;display:grid;
+        place-items:center;background:var(--tab,var(--yellow));box-shadow:var(--sh-sm)}
+  .icon svg{width:25px;height:25px;display:block}
+  .block-head h2{font-size:23px;margin-top:2px;letter-spacing:-.03em}
+  .block-head p{margin:6px 0 0;font-size:13.5px;font-weight:600;color:#4a4a46;max-width:72ch}
+  .head-num{font-family:var(--font-mono);font-size:15px;font-weight:700;background:var(--yellow);
+            border:3px solid var(--black);border-radius:8px;padding:5px 10px;white-space:nowrap;
+            box-shadow:2px 2px 0 var(--black)}
 
-  /* ---------- results ---------- */
-  .canvas{display:flex;flex-direction:column;gap:22px;min-width:0}
-  section.block{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 22px}
-  .block-head{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between;margin-bottom:16px}
-  .block-head h2{font-size:16.5px;font-weight:700}
-  .block-head p{margin:2px 0 0;color:var(--ink-2);font-size:13.5px;max-width:70ch}
+  /* ---- variables table (the hero control) ---- */
+  .vars{border:var(--bd);border-radius:12px;overflow:hidden;background:var(--card)}
+  .vars table{width:100%;border-collapse:collapse}
+  .vars thead th{background:var(--yellow);font-family:var(--font-ui);font-size:10px;font-weight:800;
+      text-transform:uppercase;letter-spacing:.11em;padding:10px 14px;text-align:left;
+      border-bottom:var(--bd);white-space:nowrap}
+  .vars td{padding:14px;border-bottom:2px dashed #d8d2c4;vertical-align:middle;background:var(--card)}
+  .vars tbody tr:last-child td{border-bottom:0}
+  .vars .vname{font-family:var(--font-ui);font-weight:800;font-size:14.5px;white-space:nowrap}
+  .vars .vwhat{font-size:12.5px;color:#4a4a46;line-height:1.45;font-weight:600}
+  .vars .vunit{font-family:var(--font-mono);font-size:12px;font-weight:700;color:#7c7a72;white-space:nowrap}
+  .vars .vctl{width:150px}
+  .vars input[type=number]{font-size:20px;box-shadow:var(--sh-sm)}
 
-  /* headline tiles */
-  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  .tile{background:var(--surface);padding:15px 16px 14px;display:flex;flex-direction:column;gap:3px}
-  .tile .k{font-family:var(--font-display);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--ink-3)}
-  .tile .v{font-family:var(--font-mono);font-size:25px;font-weight:700;line-height:1.15;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-  .tile .u{font-size:12.5px;color:var(--ink-2);font-family:var(--font-body)}
-  .tile.lead{background:#04302a}
-  .tile.lead .k{color:#7fc3b8}
-  .tile.lead .v{color:#fff}
-  .tile.lead .u{color:#a9d8d0}
+  .seg{display:inline-flex;border:3px solid var(--black);border-radius:9px;overflow:hidden;
+       background:var(--card);box-shadow:var(--sh-sm)}
+  .seg button{appearance:none;border:0;background:var(--card);color:var(--black);cursor:pointer;
+      font-family:var(--font-ui);font-size:13.5px;font-weight:800;padding:9px 18px}
+  .seg button + button{border-left:3px solid var(--black)}
+  .seg button[aria-pressed="true"]{background:var(--green);color:#fff}
+  .seg button#batNo[aria-pressed="true"]{background:var(--pink);color:#fff}
 
-  /* verdict strip */
-  .verdict{display:flex;flex-wrap:wrap;gap:10px}
-  .chk{
-    display:flex;gap:9px;align-items:flex-start;flex:1 1 240px;
-    padding:11px 13px;border-radius:8px;border:1px solid;font-size:13.5px;line-height:1.4;
-  }
-  .chk .ic{font-family:var(--font-display);font-weight:700;font-size:12px;flex:none;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;color:#fff;margin-top:1px}
-  .chk b{display:block;font-family:var(--font-display);font-size:13px;font-weight:700}
-  .chk.ok{background:#eaf4f2;border-color:#bcdcd6;color:#1f4a43}
-  .chk.ok .ic{background:var(--accent)}
-  .chk.warn{background:#fdf3e6;border-color:#eed6b3;color:#6d4108}
-  .chk.warn .ic{background:var(--solar)}
-  .chk.bad{background:#fceceb;border-color:#f0cdcb;color:#7d2a26}
-  .chk.bad .ic{background:var(--s6)}
+  /* ---- tiles ---- */
+  .tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+  @media (max-width:1240px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .tile{background:var(--card);border:var(--bd);border-radius:12px;box-shadow:var(--sh);
+        padding:14px 15px;display:flex;flex-direction:column;gap:9px}
+  .tile .top{display:flex;align-items:center;gap:9px}
+  .tile .chip{width:34px;height:34px;flex:none;border:3px solid var(--black);border-radius:8px;
+              display:grid;place-items:center}
+  .tile .chip svg{width:18px;height:18px;display:block}
+  .tile .k{font-family:var(--font-ui);font-size:10px;font-weight:800;text-transform:uppercase;
+           letter-spacing:.1em;line-height:1.2}
+  .tile .v{font-family:var(--font-mono);font-size:29px;font-weight:700;line-height:1;
+           letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .tile .u{font-size:12.5px;font-weight:600;color:#4a4a46}
+  .tile.lead{background:var(--yellow)}
+  .tile.none .v{color:#7c7a72}
 
-  /* charts */
+  /* ---- checks ---- */
+  .verdict{display:flex;flex-wrap:wrap;gap:14px}
+  .chk{display:flex;gap:10px;align-items:flex-start;flex:1 1 250px;padding:13px 14px;
+       border:var(--bd);border-radius:12px;box-shadow:var(--sh-sm);font-size:13.5px;
+       line-height:1.45;font-weight:600}
+  .chk .ic{font-family:var(--font-ui);font-weight:800;font-size:13px;flex:none;width:22px;height:22px;
+           border:3px solid var(--black);border-radius:6px;display:grid;place-items:center;background:#fff}
+  .chk b{display:block;font-family:var(--font-ui);font-size:13.5px;font-weight:800;margin-bottom:1px}
+  .chk.ok{background:#d9f7de} .chk.ok .ic{background:var(--green);color:#fff}
+  .chk.warn{background:#fff3cd} .chk.warn .ic{background:var(--yellow)}
+  .chk.bad{background:#ffe0e8} .chk.bad .ic{background:var(--pink);color:#fff}
+
   .chart{width:100%;overflow-x:auto}
   .chart svg{display:block}
-  .legend{display:flex;flex-wrap:wrap;gap:5px 16px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line-soft)}
-  .legend .li{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2)}
-  .legend .sw{width:11px;height:11px;border-radius:3px;flex:none}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:16px;padding-top:14px;border-top:2px dashed #d8d2c4}
+  .legend .li{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700}
+  .legend .sw{width:16px;height:16px;border:2.5px solid var(--black);border-radius:5px;flex:none}
 
-  /* expansion */
-  .phases{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  /* ---- phases ---- */
+  .phases{display:grid;grid-template-columns:1fr auto 1fr;border:var(--bd);border-radius:12px;overflow:hidden}
   @media (max-width:720px){.phases{grid-template-columns:1fr}}
   .phase{padding:16px 18px}
-  .phase.now{background:var(--surface)}
-  .phase.fin{background:var(--surface-sunk)}
-  .phase h3{font-size:14px;font-weight:700;margin-bottom:2px}
-  .phase .cap{font-size:12.5px;color:var(--ink-2);margin-bottom:13px}
-  .arrow{display:grid;place-items:center;padding:0 14px;background:var(--surface-sunk);border-left:1px solid var(--line);border-right:1px solid var(--line);color:var(--accent);font-family:var(--font-mono);font-size:13px;font-weight:700}
-  @media (max-width:720px){.arrow{padding:9px;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}}
-  .prow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line-soft);font-size:13.5px}
+  .phase.now{background:var(--card)} .phase.fin{background:var(--sunk)}
+  .phase h3{font-size:16px;margin-bottom:4px}
+  .phase .cap{font-size:12.5px;font-weight:600;color:#4a4a46;margin-bottom:12px}
+  .arrow{display:grid;place-items:center;padding:0 16px;background:var(--purple);color:#fff;
+         border-left:var(--bd);border-right:var(--bd);font-family:var(--font-ui);
+         font-size:14px;font-weight:800}
+  @media (max-width:720px){.arrow{padding:10px;border:0;border-top:var(--bd);border-bottom:var(--bd)}}
+  .prow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:7px 0;
+        border-bottom:2px dashed #d8d2c4;font-size:13.5px}
   .prow:last-child{border-bottom:0}
-  .prow span{color:var(--ink-2)}
+  .prow span{font-weight:600;color:#4a4a46}
   .prow b{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;font-size:14px}
 
-  /* table */
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  caption{text-align:left;color:var(--ink-3);font-size:12.5px;padding-bottom:9px}
-  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line-soft);vertical-align:top}
-  thead th{
-    font-family:var(--font-display);font-size:10.5px;font-weight:700;
-    text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);
-    border-bottom:1px solid var(--line);white-space:nowrap;
-  }
-  td.n,th.n{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
-  tbody tr:last-child td{border-bottom:1px solid var(--line)}
-  tfoot td{font-weight:700;font-size:14px;padding-top:11px}
-  .swcell{display:flex;align-items:center;gap:9px}
-  .swcell .sw{width:9px;height:22px;border-radius:2px;flex:none}
-  .spec{color:var(--ink-3);font-size:12px;display:block;margin-top:1px}
+  /* ---- data tables ---- */
+  table.data{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.data caption{text-align:left;color:#4a4a46;font-size:12.5px;font-weight:600;padding-bottom:10px}
+  table.data th,table.data td{padding:9px 10px;text-align:left;border-bottom:2px dashed #d8d2c4;vertical-align:top}
+  table.data thead th{font-family:var(--font-ui);font-size:10.5px;font-weight:800;text-transform:uppercase;
+      letter-spacing:.1em;border-bottom:var(--bd);white-space:nowrap;background:var(--sunk)}
+  table.data td.n,table.data th.n{text-align:right;font-family:var(--font-mono);
+      font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.data tbody tr:last-child td{border-bottom:var(--bd)}
+  table.data tfoot td{font-weight:800;font-size:14px;padding-top:12px;font-family:var(--font-ui)}
+  .swcell{display:flex;align-items:center;gap:10px}
+  .swcell .sw{width:14px;height:28px;border:2.5px solid var(--black);border-radius:4px;flex:none}
+  .spec{color:#7c7a72;font-size:12px;font-weight:400;display:block;margin-top:2px}
+  table.data td strong{font-family:var(--font-ui);font-weight:800}
 
-  .note{font-size:12.5px;color:var(--ink-3);line-height:1.5;margin:14px 0 0}
-  .note a{color:var(--accent-deep)}
-  .srcs{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:9px;font-size:12.5px}
-  .srcs a{color:var(--accent-deep);text-decoration:none;border-bottom:1px solid #b6dbd5}
-  .srcs a:hover{border-bottom-color:var(--accent)}
-  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .price-in{width:126px;margin-left:auto}
+  .price-in input{font-size:13.5px}
+  .derived{font-family:var(--font-mono);font-size:11px;font-weight:700;color:#7c7a72;
+           display:block;margin-top:4px;text-align:right}
+  .band{font-family:var(--font-mono);font-size:12.5px;font-weight:500;color:#4a4a46}
+  .src{line-height:2}
+  .src a{color:var(--black);font-weight:700;font-size:12.5px;text-decoration:none;
+         background:var(--lime);border:2.5px solid var(--black);border-radius:6px;padding:1px 7px;
+         display:inline-block;margin:1px 0}
+  .src a:hover{background:var(--yellow)}
+
+  .disclose{background:var(--pink);color:#fff;border:var(--bd);border-radius:12px;padding:14px 16px;
+            font-size:13.5px;font-weight:600;line-height:1.5;margin-bottom:18px;box-shadow:var(--sh-sm)}
+  .disclose b{font-family:var(--font-ui);font-weight:800}
+
+  .note{font-size:12.5px;color:#4a4a46;font-weight:500;line-height:1.55;margin:16px 0 0}
+  .note strong{font-family:var(--font-ui);font-weight:800;color:var(--black)}
+  :focus-visible{outline:3px solid var(--purple);outline-offset:2px}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
+<div class="blob a"></div>
+<div class="blob b"></div>
+<div class="sheet">
 <header class="masthead">
   <div class="masthead-in">
     <div>
-      <div class="eyebrow">Off-grid backup sizing &middot; Colombian Caribbean</div>
-      <h1>Caribe Solar Sizer</h1>
-      <p>Sizes an expandable battery-backed solar array from the loads it has to carry &mdash; panels, storage, inverters, cost in COP and a dependency-ordered build schedule.</p>
+      <div class="eyebrow">Dimensionamiento de respaldo solar &middot; Caribe colombiano</div>
+      <h1>Dimensionador Solar Caribe</h1>
+      <p>Dimensiona un sistema solar ampliable a partir de las cargas que debe soportar: paneles, almacenamiento, inversores, costo en COP y un cronograma ordenado por dependencias.</p>
     </div>
-    <div class="sun">Santa Marta HSP <b id="hspBadge">5.5</b> kWh/m&sup2;&middot;d</div>
+    <div class="sun">Santa Marta HSP <b id="hspBadge">5,5</b> kWh/m&sup2;&middot;d</div>
   </div>
 </header>
 
 <div class="wrap">
   <form class="rail" id="rail" autocomplete="off">
     <div class="rail-head">
-      <h2>Design inputs</h2>
-      <button type="button" class="reset" id="reset">Reset</button>
+      <h2>Par&aacute;metros</h2>
+      <button type="button" class="reset" id="reset">Restablecer</button>
     </div>
 
     <fieldset>
-      <legend class="eyebrow">Storage target</legend>
-      <div class="hero-field">
-        <div class="field">
-          <label for="storage">Usable capacity<small>kWh delivered to loads</small></label>
-          <input type="number" id="storage" value="12" min="1" max="200" step="0.5">
-        </div>
-      </div>
-      <div class="field">
-        <label for="dod">Usable depth of discharge<small>LiFePO&#8324; &mdash; % of nameplate</small></label>
+      <legend class="eyebrow">Almacenamiento</legend>
+      <div class="field" id="dodField">
+        <label for="dod">Profundidad de descarga<small>LiFePO&#8324; &mdash; % de la placa</small></label>
         <input type="number" id="dod" value="90" min="50" max="100" step="1">
       </div>
     </fieldset>
 
     <fieldset>
-      <legend class="eyebrow">Air conditioning load</legend>
+      <legend class="eyebrow">Carga de aire acondicionado</legend>
       <div class="field">
-        <label for="acUnits">Split units<small>Midea Solstice 18,000 BTU/h class</small></label>
+        <label for="acUnits">Unidades split<small>Clase Midea Solstice 18.000 BTU/h</small></label>
         <input type="number" id="acUnits" value="2" min="0" max="40" step="1">
       </div>
       <div class="field">
-        <label for="acWatts">Rated input each<small>W &mdash; datasheet band 634&ndash;2,120 W</small></label>
+        <label for="acWatts">Consumo nominal c/u<small>W &mdash; ficha t&eacute;cnica 634&ndash;2.120 W</small></label>
         <input type="number" id="acWatts" value="1600" min="200" max="4000" step="10">
       </div>
       <div class="field">
-        <label for="acHours">Run hours per day<small>h</small></label>
-        <input type="number" id="acHours" value="8" min="0" max="24" step="0.5">
-      </div>
-      <div class="field">
-        <label for="duty">Inverter duty cycle<small>% of rated input, averaged</small></label>
+        <label for="duty">Ciclo de trabajo<small>% del nominal, promediado</small></label>
         <input type="number" id="duty" value="65" min="20" max="100" step="1">
       </div>
     </fieldset>
 
     <fieldset>
-      <legend class="eyebrow">Other loads</legend>
+      <legend class="eyebrow">Otras cargas</legend>
       <div class="field">
-        <label for="otherKwh">Daily energy<small>kWh/day &mdash; fridge, lights, pumps</small></label>
+        <label for="otherKwh">Energ&iacute;a diaria<small>kWh/d&iacute;a &mdash; nevera, luces, bombas</small></label>
         <input type="number" id="otherKwh" value="4" min="0" max="200" step="0.5">
       </div>
       <div class="field">
-        <label for="otherPeak">Simultaneous peak<small>W</small></label>
+        <label for="otherPeak">Pico simult&aacute;neo<small>W</small></label>
         <input type="number" id="otherPeak" value="1500" min="0" max="20000" step="50">
       </div>
     </fieldset>
 
     <fieldset>
-      <legend class="eyebrow">Site &amp; hardware</legend>
+      <legend class="eyebrow">Sitio y equipos</legend>
       <div class="field">
-        <label for="hsp">Peak sun hours<small>kWh/m&sup2;&middot;day (HSP)</small></label>
+        <label for="hsp">Horas solares pico<small>kWh/m&sup2;&middot;d&iacute;a (HSP)</small></label>
         <input type="number" id="hsp" value="5.5" min="2" max="8" step="0.1">
       </div>
       <div class="field">
-        <label for="pr">Performance ratio<small>% &mdash; soiling, heat, round-trip</small></label>
+        <label for="pr">Ratio de desempe&ntilde;o<small>% &mdash; suciedad, calor, ida y vuelta</small></label>
         <input type="number" id="pr" value="78" min="50" max="95" step="1">
       </div>
       <div class="field">
-        <label for="panelW">Panel wattage<small>Wp per module</small></label>
+        <label for="panelW">Potencia por panel<small>Wp por m&oacute;dulo</small></label>
         <input type="number" id="panelW" value="585" min="100" max="800" step="5">
       </div>
       <div class="field">
-        <label for="expansion">Final-form multiplier<small>&times; the initial power</small></label>
+        <label for="expansion">Multiplicador forma final<small>&times; la potencia inicial</small></label>
         <input type="number" id="expansion" value="2.5" min="1" max="10" step="0.1">
       </div>
     </fieldset>
 
     <fieldset>
-      <legend class="eyebrow">Commercial</legend>
+      <legend class="eyebrow">Comercial</legend>
       <div class="field">
-        <label for="margin">Installer margin<small>%</small></label>
+        <label for="margin">Margen del instalador<small>%</small></label>
         <input type="number" id="margin" value="12" min="0" max="60" step="1">
       </div>
       <div class="toggles">
-        <label class="toggle"><input type="checkbox" id="ley" checked><span>Apply Ley 1715 IVA exclusion<small>Removes 19% VAT on equipment and services</small></span></label>
-        <label class="toggle"><input type="checkbox" id="grid" checked><span>Grid interconnection<small>Adds operador de red filing to the schedule</small></span></label>
+        <label class="toggle"><input type="checkbox" id="ley" checked><span>Exclusi&oacute;n de IVA (Ley 1715)<small>Retira el 19% en equipos y servicios</small></span></label>
+        <label class="toggle"><input type="checkbox" id="grid" checked><span>Conexi&oacute;n a la red<small>Suma el tr&aacute;mite ante el operador de red</small></span></label>
       </div>
     </fieldset>
   </form>
 
   <main class="canvas">
+
+    <section class="block" style="--tab:var(--yellow)">
+      <div class="block-head">
+        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h10M18 8h2M4 16h4M12 16h8" /><circle cx="16" cy="8" r="2.4"/><circle cx="10" cy="16" r="2.4"/></svg></span><div>
+          <div class="eyebrow">Variables principales</div>
+          <h2>Tabla de variables</h2>
+          <p>Cambia cualquiera de estos tres valores y todo el documento &mdash; paneles, costo, cronograma y forma final &mdash; se recalcula al instante.</p>
+        </div></div>
+      </div>
+      <div class="vars">
+        <table>
+          <thead>
+            <tr><th>Variable</th><th>Valor</th><th>Unidad</th><th>Qu&eacute; cambia en el c&aacute;lculo</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="vname"><label for="storage">Capacidad utilizable</label></td>
+              <td class="vctl"><input type="number" id="storage" value="12" min="1" max="200" step="0.5"></td>
+              <td class="vunit">kWh</td>
+              <td class="vwhat">Autonom&iacute;a nocturna, cantidad de m&oacute;dulos de bater&iacute;a y el rengl&oacute;n de almacenamiento del presupuesto.</td>
+            </tr>
+            <tr>
+              <td class="vname">Banco de bater&iacute;as</td>
+              <td class="vctl">
+                <div class="seg" role="group" aria-label="Banco de bater&iacute;as">
+                  <button type="button" id="batYes" aria-pressed="true">S&iacute;</button>
+                  <button type="button" id="batNo" aria-pressed="false">No</button>
+                </div>
+              </td>
+              <td class="vunit">s&iacute; / no</td>
+              <td class="vwhat">Con bater&iacute;as hay respaldo real en apag&oacute;n. Sin ellas el sistema solo compensa consumo mientras hay sol y los aires se apagan si se cae la red.</td>
+            </tr>
+            <tr>
+              <td class="vname"><label for="acHours">Horas de uso por d&iacute;a</label></td>
+              <td class="vctl"><input type="number" id="acHours" value="8" min="0" max="24" step="0.5"></td>
+              <td class="vunit">h/d&iacute;a</td>
+              <td class="vwhat">Energ&iacute;a diaria de los aires, tama&ntilde;o del arreglo, n&uacute;mero de paneles y la autonom&iacute;a que se le exige al banco.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <div class="tiles" id="tiles"></div>
 
-    <section class="block">
+    <section class="block" style="--tab:var(--green)">
       <div class="block-head">
-        <div>
-          <div class="eyebrow">Sanity checks</div>
-          <h2>Does the design actually carry the load?</h2>
-          <p>Generation margin, night-time autonomy and inverter headroom, recomputed from the inputs on the left.</p>
-        </div>
+        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13l5 5L20 6"/></svg></span><div>
+          <div class="eyebrow">Verificaciones</div>
+          <h2>&iquest;El dise&ntilde;o realmente soporta la carga?</h2>
+          <p>Margen de generaci&oacute;n, autonom&iacute;a nocturna y holgura del inversor, recalculados con cada cambio.</p>
+        </div></div>
       </div>
       <div class="verdict" id="verdict"></div>
     </section>
 
-    <section class="block">
+    <section class="block" style="--tab:var(--pink)">
       <div class="block-head">
-        <div>
-          <div class="eyebrow">Phase 1 capital cost</div>
-          <h2>Where the money goes</h2>
-          <p>Colombian market rates, 2026. Bars are labelled directly; the full bill of materials is at the foot of the page.</p>
-        </div>
-        <div class="num" id="costTotalLabel" style="font-size:15px;font-weight:700"></div>
+        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="5"/><path d="M14.5 5.5A5 5 0 1 1 15 18.4"/></svg></span><div>
+          <div class="eyebrow">Costo de capital &mdash; Fase 1</div>
+          <h2>En qu&eacute; se va el dinero</h2>
+          <p>Precios de mercado colombiano 2026. Las barras est&aacute;n etiquetadas directamente; la lista completa de materiales est&aacute; m&aacute;s abajo.</p>
+        </div></div>
+        <div class="head-num" id="costTotalLabel"></div>
       </div>
       <div class="chart" id="costChart"></div>
       <div class="legend" id="costLegend"></div>
     </section>
 
-    <section class="block">
+    <section class="block" style="--tab:var(--lime)">
       <div class="block-head">
+        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V5a1 1 0 0 1 1-1h6l9 9-7 7z"/><circle cx="8" cy="8" r="1.6"/></svg></span><div>
+          <div class="eyebrow">Trazabilidad de precios</div>
+          <h2>De d&oacute;nde salen los precios</h2>
+          <p>Cada precio unitario es editable: si ya tienes una cotizaci&oacute;n real, escr&iacute;bela aqu&iacute; y todo el presupuesto se recalcula con tu n&uacute;mero.</p>
+        </div></div>
+      </div>
+      <div class="disclose">
+        <b>C&oacute;mo leer esta tabla.</b> Los rangos de mercado provienen de precios publicados por distribuidores colombianos en 2026. Los precios unitarios que trae el formulario son el punto medio de esos rangos, no cotizaciones cerradas de un SKU espec&iacute;fico &mdash; no fue posible leer el precio individual de cada referencia en las tiendas. &Uacute;salos para planear y reempl&aacute;zalos con cotizaciones formales antes de comprometer plata.
+      </div>
+      <div class="chart">
+        <table class="data" id="prices"></table>
+      </div>
+      <div class="block-head" style="margin:26px 0 12px">
         <div>
-          <div class="eyebrow">Expandability</div>
-          <h2>Phase 1 today, final form later</h2>
-          <p>The final form runs <span id="expLabel">2.5&times;</span> the initial power. Sizing the 48&nbsp;V bus and structure for the end state now is what makes the second phase a bolt-on rather than a rebuild.</p>
+          <div class="eyebrow">Proveedores de paneles consultados</div>
+          <p>Distribuidores colombianos con cat&aacute;logo p&uacute;blico de m&oacute;dulos en el rango 550&ndash;620&nbsp;Wp.</p>
         </div>
+      </div>
+      <div class="chart">
+        <table class="data" id="suppliers"></table>
+      </div>
+    </section>
+
+    <section class="block" style="--tab:var(--purple)">
+      <div class="block-head">
+        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10V4h6M20 14v6h-6M4 4l7 7M20 20l-7-7"/></svg></span><div>
+          <div class="eyebrow">Ampliabilidad</div>
+          <h2>Fase 1 hoy, forma final despu&eacute;s</h2>
+          <p>La forma final corre <span id="expLabel">2,5&times;</span> la potencia inicial. Dimensionar desde ya la barra de 48&nbsp;V, la estructura y el espacio de gabinete es lo que hace que la segunda fase sea una ampliaci&oacute;n y no una obra nueva.</p>
+        </div></div>
       </div>
       <div class="phases" id="phases"></div>
       <p class="note" id="expNote"></p>
     </section>
 
-    <section class="block">
+    <section class="block" style="--tab:var(--purple)">
       <div class="block-head">
-        <div>
-          <div class="eyebrow">Build schedule</div>
-          <h2>Estimated timeline</h2>
-          <p>Numbered by dependency order &mdash; permitting runs alongside procurement, so the critical path is shorter than the sum of its parts.</p>
-        </div>
-        <div class="num" id="ganttTotal" style="font-size:15px;font-weight:700"></div>
+        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><path d="M8 3v5M16 3v5M3.5 11h17"/></svg></span><div>
+          <div class="eyebrow">Cronograma de obra</div>
+          <h2>Tiempo estimado</h2>
+          <p>Numerado por orden de dependencias &mdash; la tramitolog&iacute;a corre en paralelo con las compras, as&iacute; que la ruta cr&iacute;tica es m&aacute;s corta que la suma de las partes.</p>
+        </div></div>
+        <div class="head-num" id="ganttTotal"></div>
       </div>
       <div class="chart" id="gantt"></div>
       <div class="legend" id="ganttLegend"></div>
     </section>
 
-    <section class="block">
+    <section class="block" style="--tab:var(--gray)">
       <div class="block-head">
-        <div>
-          <div class="eyebrow">Bill of materials</div>
-          <h2>Phase 1 line items</h2>
-        </div>
+        <div class="titleset"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/></svg></span><div>
+          <div class="eyebrow">Lista de materiales</div>
+          <h2>&Iacute;tems de la Fase 1</h2>
+        </div></div>
       </div>
-      <div class="chart">
-        <table id="bom">
-          <caption>Unit prices are 2026 Colombian street prices; quantities come from the sizing above.</caption>
-        </table>
-      </div>
-      <p class="note">
-        <strong>Grounding of the figures.</strong> Santa Marta sits at roughly 5.5&nbsp;kWh/m&sup2;&middot;day, the highest band in Colombia (IDEAM/UPME solar atlas). The reference air conditioner is a Midea Solstice EZ-18RD6 &mdash; 18,000&nbsp;BTU/h, 5.3&nbsp;kW cooling, R32 full-DC inverter, cooling input 634&ndash;2,120&nbsp;W, SEER 8.5. Market rates: 550&ndash;620&nbsp;Wp monocrystalline modules at $400k&ndash;$750k COP each; residential systems at $3.5&ndash;5.5M COP per kWp; a 5&nbsp;kWp array with 5&ndash;10&nbsp;kWh of LiFePO&#8324; quoted at $52&ndash;88M COP. Physical installation runs 1&ndash;3 days, with operador de red paperwork taking 3&ndash;6 weeks. Ley 1715 of 2014 and Ley 2099 of 2021 give an IVA exclusion plus a 50% income-tax deduction, together worth up to ~40% of project cost.
-      </p>
-      <div class="srcs">
-        <a href="https://autosolar.co/kits-solares" target="_blank" rel="noopener">AutoSolar Colombia</a>
-        <a href="https://www.opscolombia.com/ciudad/santa-marta#calculadora" target="_blank" rel="noopener">OPS Colombia &mdash; Santa Marta</a>
-        <a href="https://www.sunnyfuture.co/panel-solar-santa-marta/" target="_blank" rel="noopener">Sunny Future</a>
-        <a href="https://www.midea.com/nl-en/air-solutions/air-conditioning/solstice-split/solstice-split-air-con-18000-btu-h11.ez-18rd6-i---ez-18rd6h-o" target="_blank" rel="noopener">Midea EZ-18RD6 datasheet</a>
-      </div>
-      <p class="note">Planning-grade estimate, not a quotation. Confirm roof area and orientation, panel-level shading, service entrance capacity and the operador de red's current interconnection rules before committing spend.</p>
+      <div class="chart"><table class="data" id="bom"></table></div>
+      <p class="note" id="grounding"></p>
+      <p class="note">Esta es una estimaci&oacute;n de planeaci&oacute;n, no una cotizaci&oacute;n. Antes de comprometer plata confirma &aacute;rea y orientaci&oacute;n de cubierta, sombras panel por panel, capacidad de la acometida y las reglas vigentes de conexi&oacute;n del operador de red.</p>
     </section>
   </main>
+</div>
 </div>
 
 <script>
 (function(){
   "use strict";
 
-  /* ---------- constants: 2026 Colombian market ---------- */
-  var PRICE = {
-    panelPerWp:     889,        // COP/Wp  (~$520k for a 585 Wp module)
-    batteryModule:  6500000,    // COP per 5.12 kWh 48 V LiFePO4 rack module
-    inverterUnit:   9500000,    // COP per 8 kW 48 V hybrid inverter
-    mountPerPanel:  180000,
-    bosBase:        1400000,
-    bosPerPanel:    120000,
-    engineering:    2500000,
-    permitsGrid:    1200000,
-    permitsRetie:   600000
+  /* ============ price defaults (COP, 2026) with their provenance ============ */
+  var P = {
+    panel:     520000,   // per 585 Wp module — midpoint of the published band
+    battery:  6500000,   // per 5.12 kWh 48 V LiFePO4 rack module
+    inverter: 9500000,   // per 8 kW 48 V parallel-capable hybrid
+    mount:     180000,   // per panel
+    bos:      1400000,   // base balance-of-system
+    bosPer:    120000,   // per panel
+    eng:      2500000,   // engineering + RETIE dossier
+    labourPct:      15,  // % of equipment value
+    permitGrid:1200000,
+    permitOnly: 600000
   };
-  var LABOUR_RATE = 0.15, IVA = 0.19, RENTA_RATE = 0.35;
+  var PRICE_IDS = ["panel","battery","inverter","mount","bos","eng","labourPct"];
+
+  var IVA = 0.19, RENTA_RATE = 0.35;
   var MODULE_KWH = 5.12, INVERTER_KW = 8, AC_MAX_W = 2120, INV_HEADROOM = 1.25;
 
   var CATS = [
-    { key:"pv",      name:"PV modules",             color:"var(--s1)", hex:"#008574" },
-    { key:"storage", name:"Battery storage",        color:"var(--s2)", hex:"#c06a00" },
-    { key:"inv",     name:"Inverter & electronics", color:"var(--s3)", hex:"#2e5aa8" },
-    { key:"mount",   name:"Structure & mounting",   color:"var(--s4)", hex:"#a63a62" },
-    { key:"labour",  name:"Labour & engineering",   color:"var(--s5)", hex:"#6e56c8" },
-    { key:"permit",  name:"Permits & certification",color:"var(--s6)", hex:"#c4453c" }
+    { key:"pv",      name:"Paneles solares",           hex:"#fc3f6d" },
+    { key:"storage", name:"Almacenamiento",            hex:"#ffc81f" },
+    { key:"inv",     name:"Inversor y electrónica", hex:"#7c5cfa" },
+    { key:"mount",   name:"Estructura y montaje",      hex:"#35c93f" },
+    { key:"labour",  name:"Mano de obra e ingeniería", hex:"#afd32b" },
+    { key:"permit",  name:"Permisos y certificación", hex:"#a8a8a8" }
   ];
   var TRACKS = {
-    design:  { name:"Engineering",  hex:"#2e5aa8" },
-    procure: { name:"Procurement",  hex:"#c06a00" },
-    install: { name:"Installation", hex:"#008574" },
-    cert:    { name:"Certification",hex:"#a63a62" },
-    permit:  { name:"Permitting",   hex:"#6e56c8" }
+    design:  { name:"Ingeniería",  hex:"#7c5cfa" },
+    procure: { name:"Compras",          hex:"#ffc81f" },
+    install: { name:"Instalación", hex:"#35c93f" },
+    cert:    { name:"Certificación",hex:"#fc3f6d" },
+    permit:  { name:"Tramitología",hex:"#afd32b" }
   };
 
-  var DEFAULTS = {
+  var DEF = {
     storage:12, dod:90, acUnits:2, acWatts:1600, acHours:8, duty:65,
     otherKwh:4, otherPeak:1500, hsp:5.5, pr:78, panelW:585,
-    expansion:2.5, margin:12, ley:true, grid:true
+    expansion:2.5, margin:12, ley:true, grid:true, bateria:true
   };
   var NUMS = ["storage","dod","acUnits","acWatts","acHours","duty","otherKwh",
               "otherPeak","hsp","pr","panelW","expansion","margin"];
-  var STORE = "caribe-solar-sizer.v1";
+  var STORE = "dimensionador-solar-caribe.v2";
+  var bateria = DEF.bateria;
 
-  /* ---------- formatting ---------- */
+  /* ============ formatting ============ */
   function cop(v){ return "$" + Math.round(v).toLocaleString("es-CO"); }
   function copM(v){
     var m = v/1e6;
     return "$" + (m >= 100 ? m.toFixed(0) : m.toFixed(1)).replace(".", ",") + "M";
   }
   function dec(v,d){ return v.toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d}); }
-  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){
     return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function clampEl(el, fallback){
+    var v = parseFloat(el.value);
+    if (!isFinite(v)) v = fallback;
+    var lo = parseFloat(el.min), hi = parseFloat(el.max);
+    if (isFinite(lo) && v < lo) v = lo;
+    if (isFinite(hi) && v > hi) v = hi;
+    return v;
+  }
 
-  /* ---------- inputs ---------- */
+  /* ============ inputs ============ */
   function read(){
     var i = {};
-    NUMS.forEach(function(k){
-      var el = document.getElementById(k);
-      var v = parseFloat(el.value);
-      if (!isFinite(v)) v = DEFAULTS[k];
-      var lo = parseFloat(el.min), hi = parseFloat(el.max);
-      if (isFinite(lo) && v < lo) v = lo;
-      if (isFinite(hi) && v > hi) v = hi;
-      i[k] = v;
+    NUMS.forEach(function(k){ i[k] = clampEl(document.getElementById(k), DEF[k]); });
+    i.ley     = document.getElementById("ley").checked;
+    i.grid    = document.getElementById("grid").checked;
+    i.bateria = bateria;
+    PRICE_IDS.forEach(function(k){
+      var el = document.getElementById("p_"+k);
+      if (el) P[k] = clampEl(el, P[k]);
     });
-    i.ley  = document.getElementById("ley").checked;
-    i.grid = document.getElementById("grid").checked;
     return i;
   }
 
-  /* ---------- the sizing model ---------- */
+  /* ============ sizing model ============ */
   function size(i, scale){
-    var pr  = i.pr/100, dod = i.dod/100, duty = i.duty/100;
+    var pr = i.pr/100, dod = i.dod/100, duty = i.duty/100;
 
-    var acUnits   = Math.round(i.acUnits * scale);
-    var storageKwh= i.storage * scale;
-    var otherKwh  = i.otherKwh * scale;
-    var otherPeak = i.otherPeak * scale;
+    var acUnits    = Math.round(i.acUnits * scale);
+    var storageKwh = i.storage * scale;
+    var otherKwh   = i.otherKwh * scale;
+    var otherPeak  = i.otherPeak * scale;
 
-    // ---- demand
-    var acDaily   = acUnits * i.acWatts * i.acHours * duty / 1000;
-    var dailyKwh  = acDaily + otherKwh;
+    // demand
+    var acDaily  = acUnits * i.acWatts * i.acHours * duty / 1000;
+    var dailyKwh = acDaily + otherKwh;
 
-    // ---- array
+    // array
     var kwpNeeded = dailyKwh / (i.hsp * pr);
-    var panels    = Math.max(dailyKwh > 0 ? 1 : 0, Math.ceil(kwpNeeded * 1000 / i.panelW));
+    var panels    = dailyKwh > 0 ? Math.max(1, Math.ceil(kwpNeeded*1000 / i.panelW)) : 0;
     var arrayKwp  = panels * i.panelW / 1000;
     var genDaily  = arrayKwp * i.hsp * pr;
 
-    // ---- storage
-    var nameplate = storageKwh / dod;
-    var modules   = Math.max(1, Math.ceil(nameplate / MODULE_KWH));
-    var bankKwh   = modules * MODULE_KWH;
-    var usableKwh = bankKwh * dod;
+    // storage
+    var modules = 0, bankKwh = 0, usableKwh = 0;
+    if (i.bateria){
+      modules   = Math.max(1, Math.ceil((storageKwh/dod) / MODULE_KWH));
+      bankKwh   = modules * MODULE_KWH;
+      usableKwh = bankKwh * dod;
+    }
 
-    // ---- conversion
+    // conversion
     var contW  = acUnits * i.acWatts + otherPeak;
     var surgeW = acUnits * AC_MAX_W  + otherPeak;
     var inverters = Math.max(1, Math.ceil(contW * INV_HEADROOM / (INVERTER_KW*1000)));
     var invW = inverters * INVERTER_KW * 1000;
 
-    // ---- autonomy on the bank alone
+    // autonomy
     var avgW = acUnits * i.acWatts * duty + otherKwh*1000/24;
-    var autonomyH = avgW > 0 ? usableKwh*1000/avgW : 0;
-    var acOnlyW = acUnits * i.acWatts * duty;
-    var acAutonomyH = acOnlyW > 0 ? usableKwh*1000/acOnlyW : 0;
+    var autonomyH = (i.bateria && avgW > 0) ? usableKwh*1000/avgW : 0;
 
-    // ---- cost
+    // cost
     var c = {};
-    c.pv      = panels * i.panelW * PRICE.panelPerWp;
-    c.storage = modules * PRICE.batteryModule;
-    c.inv     = inverters * PRICE.inverterUnit;
-    c.mount   = panels * PRICE.mountPerPanel;
-    var bos   = PRICE.bosBase + panels * PRICE.bosPerPanel;
-    c.inv    += bos;
+    c.pv      = panels * P.panel;
+    c.storage = modules * P.battery;
+    var bos   = panels > 0 ? P.bos + panels*P.bosPer : 0;
+    c.inv     = inverters * P.inverter + bos;
+    c.mount   = panels * P.mount;
     var equipment = c.pv + c.storage + c.inv + c.mount;
-    c.labour  = equipment * LABOUR_RATE + PRICE.engineering;
-    c.permit  = i.grid ? PRICE.permitsGrid : PRICE.permitsRetie;
+    c.labour  = equipment * (P.labourPct/100) + P.eng;
+    c.permit  = i.grid ? P.permitGrid : P.permitOnly;
 
-    var subtotal = 0;
-    CATS.forEach(function(k){ subtotal += c[k.key]; });
-    var total   = subtotal * (1 + i.margin/100);
-    var withIva = total * (1 + IVA);
-    var price   = i.ley ? total : withIva;
-    var ivaSaved= i.ley ? withIva - total : 0;
-    var renta   = total * 0.5 * RENTA_RATE;
+    var subtotal = 0; CATS.forEach(function(k){ subtotal += c[k.key]; });
+    var total    = subtotal * (1 + i.margin/100);
+    var withIva  = total * (1 + IVA);
+    var price    = i.ley ? total : withIva;
 
     return {
-      acUnits:acUnits, acDaily:acDaily, dailyKwh:dailyKwh, otherKwh:otherKwh,
-      panels:panels, arrayKwp:arrayKwp, genDaily:genDaily, kwpNeeded:kwpNeeded,
-      modules:modules, bankKwh:bankKwh, usableKwh:usableKwh, storageKwh:storageKwh,
-      inverters:inverters, invW:invW, contW:contW, surgeW:surgeW,
-      autonomyH:autonomyH, acAutonomyH:acAutonomyH, avgW:avgW,
-      bos:bos, cost:c, subtotal:subtotal, total:total, price:price,
-      ivaSaved:ivaSaved, renta:renta,
-      margin:genDaily - dailyKwh,
-      marginPct: dailyKwh > 0 ? (genDaily/dailyKwh - 1)*100 : 0
+      acUnits:acUnits, dailyKwh:dailyKwh, otherKwh:otherKwh,
+      panels:panels, arrayKwp:arrayKwp, genDaily:genDaily,
+      modules:modules, bankKwh:bankKwh, usableKwh:usableKwh,
+      inverters:inverters, invW:invW, surgeW:surgeW,
+      autonomyH:autonomyH, avgW:avgW, bos:bos,
+      cost:c, subtotal:subtotal, total:total, price:price,
+      ivaSaved: i.ley ? withIva-total : 0,
+      renta: total*0.5*RENTA_RATE,
+      margin: genDaily-dailyKwh,
+      marginPct: dailyKwh > 0 ? (genDaily/dailyKwh-1)*100 : 0
     };
   }
 
-  /* ---------- schedule ---------- */
-  function schedule(r, grid){
+  /* ============ schedule ============ */
+  function schedule(r, i){
     var wire = 2 + Math.ceil(r.panels/6);
+    var buyDur = i.bateria ? 20 : 15;
+    var buyNote = i.bateria ? "Módulos, banco LiFePO₄ e inversor híbrido"
+                            : "Módulos e inversor híbrido (sin banco)";
     var t = [];
-    t.push({ n:"Engineering & load study",  s:0,  d:6,  track:"design",
-             note:"Roof survey, shading, single-line diagram" });
-    t.push({ n:"Equipment procurement",     s:6,  d:20, track:"procure",
-             note:"Modules, LiFePO₄ bank, hybrid inverter" });
-    t.push({ n:"Ley 1715 incentive filing", s:6,  d:25, track:"permit",
-             note:"UPME certification for IVA exclusion" });
-    if (grid) t.push({ n:"Grid interconnection", s:6, d:30, track:"permit",
-             note:"Operador de red application & approval" });
-    t.push({ n:"Structure & mounting",      s:26, d:2,  track:"install",
-             note:"Rails, ballast, penetrations sealed" });
-    t.push({ n:"Electrical install & wiring", s:28, d:wire, track:"install",
-             note:"DC strings, 48 V bus, AC tie-in" });
-    t.push({ n:"Commissioning & RETIE",     s:28+wire, d:7, track:"cert",
-             note:"Testing, certification, handover" });
-    t.sort(function(a,b){ return a.s - b.s || a.d - b.d; });
-    var end = 0;
-    t.forEach(function(x){ end = Math.max(end, x.s + x.d); });
+    t.push({ n:"Ingeniería y estudio de cargas", s:0, d:6, track:"design",
+             note:"Levantamiento en sitio, sombras, diagrama unifilar" });
+    t.push({ n:"Compra de equipos", s:6, d:buyDur, track:"procure", note:buyNote });
+    t.push({ n:"Trámite Ley 1715", s:6, d:25, track:"permit",
+             note:"Certificación UPME para exclusión de IVA" });
+    if (i.grid) t.push({ n:"Conexión a la red", s:6, d:30, track:"permit",
+             note:"Solicitud y aprobación del operador de red" });
+    var mStart = 6 + buyDur;
+    t.push({ n:"Estructura y montaje", s:mStart, d:2, track:"install",
+             note:"Rieles, anclajes, sellado de perforaciones" });
+    t.push({ n:"Instalación eléctrica", s:mStart+2, d:wire, track:"install",
+             note:"Cadenas DC, barra de 48 V, empalme AC" });
+    t.push({ n:"Puesta en marcha y RETIE", s:mStart+2+wire, d:7, track:"cert",
+             note:"Pruebas, certificación, entrega" });
+    t.sort(function(a,b){ return a.s-b.s || a.d-b.d; });
+    var end = 0; t.forEach(function(x){ end = Math.max(end, x.s+x.d); });
     return { tasks:t, days:end };
   }
 
-  /* ---------- renderers ---------- */
-  function tiles(r, sch){
-    var html = "";
-    function tile(k,v,u,lead){
-      html += '<div class="tile'+(lead?" lead":"")+'"><div class="k">'+k+'</div>'+
-              '<div class="v">'+v+'</div><div class="u">'+u+'</div></div>';
+  var ICO = {
+    sun: '<svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.4 5.4l1.9 1.9M16.7 16.7l1.9 1.9M18.6 5.4l-1.9 1.9M7.3 16.7l-1.9 1.9"/></svg>',
+    battery: '<svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7.5" width="16" height="9" rx="2"/><path d="M21.5 11v2"/><path d="M6 11v2M9.5 11v2"/></svg>',
+    bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 2.5L5 13.5h5l-1.5 8 9-11.5h-5z"/></svg>',
+    money: '<svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M8.5 7.5h5.2a2.8 2.8 0 0 1 0 5.6H9.9a2.8 2.8 0 0 0 0 5.6h5.6"/></svg>',
+    calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><path d="M8 3v5M16 3v5M3.5 11h17"/></svg>',
+  };
+
+  /* ============ render: tiles ============ */
+  function tiles(r, sch, i){
+    var h = "";
+    function tile(k,v,u,cls,ic,col){
+      h += '<div class="tile'+(cls?" "+cls:"")+'">'+
+           '<div class="top"><span class="chip" style="background:'+col+'">'+ic+'</span>'+
+           '<span class="k">'+k+'</span></div>'+
+           '<div class="v">'+v+'</div><div class="u">'+u+'</div></div>';
     }
-    tile("Solar panels", r.panels, dec(r.arrayKwp,2)+" kWp array");
-    tile("Battery bank", dec(r.bankKwh,1)+" kWh", r.modules+" × 5,12 kWh · 48 V");
-    tile("Inverter", dec(r.invW/1000,0)+" kW", r.inverters+" × 8 kW hybrid");
-    tile("Capital cost", copM(r.price), "COP, installed", true);
-    tile("Timeline", sch.days+" d", "≈ "+dec(sch.days/7,1)+" weeks");
-    document.getElementById("tiles").innerHTML = html;
+    tile("Paneles solares", r.panels, "arreglo de "+dec(r.arrayKwp,2)+" kWp", "", ICO.sun, "var(--pink)");
+    if (i.bateria) tile("Banco de baterías", dec(r.bankKwh,1)+" kWh", r.modules+" × 5,12 kWh · 48 V", "", ICO.battery, "var(--gold)");
+    else           tile("Banco de baterías", "—", "sin almacenamiento", "none", ICO.battery, "var(--sunk)");
+    tile("Inversor", dec(r.invW/1000,0)+" kW", r.inverters+" × 8 kW híbrido", "", ICO.bolt, "var(--purple)");
+    tile("Costo de capital", copM(r.price), "COP, instalado", "lead", ICO.money, "#ffffff");
+    tile("Cronograma", sch.days+" d", "≈ "+dec(sch.days/7,1)+" semanas", "", ICO.calendar, "var(--lime)");
+    document.getElementById("tiles").innerHTML = h;
   }
 
+  /* ============ render: checks ============ */
   function verdict(r, i){
     var out = [];
-    // generation margin
-    if (r.marginPct >= 5) out.push(["ok","✓","Array covers the load",
-      "Generates "+dec(r.genDaily,1)+" kWh/day against "+dec(r.dailyKwh,1)+" kWh/day of demand — a "+dec(r.marginPct,0)+"% margin."]);
-    else if (r.marginPct >= 0) out.push(["warn","!","Generation margin is thin",
-      dec(r.genDaily,1)+" kWh/day against "+dec(r.dailyKwh,1)+" kWh/day. Under "+dec(5,0)+"% headroom leaves nothing for a cloudy week."]);
-    else out.push(["bad","×","Array under-generates",
-      "Short by "+dec(Math.abs(r.margin),1)+" kWh/day. Add panels or cut run hours."]);
 
-    // autonomy vs the stated storage target
-    var hrs = dec(r.autonomyH,1);
-    if (r.autonomyH >= i.acHours) out.push(["ok","✓","Bank covers a full night",
-      hrs+" h of autonomy at the average "+dec(r.avgW,0)+" W draw — more than the "+dec(i.acHours,1)+" h of AC asked for."]);
-    else out.push(["warn","!","Bank runs "+hrs+" h, not "+dec(i.acHours,1)+" h",
-      dec(r.usableKwh,1)+" kWh usable at "+dec(r.avgW,0)+" W average. Raise usable capacity to about "+
-      dec(r.avgW*i.acHours/1000/(i.dod/100),0)+" kWh nameplate to cover the full run."]);
+    if (r.marginPct >= 5) out.push(["ok","✓","El arreglo cubre la carga",
+      "Genera "+dec(r.genDaily,1)+" kWh/día frente a "+dec(r.dailyKwh,1)+
+      " kWh/día de demanda — un margen del "+dec(r.marginPct,0)+"%."]);
+    else if (r.marginPct >= 0) out.push(["warn","!","El margen de generación es ajustado",
+      dec(r.genDaily,1)+" kWh/día contra "+dec(r.dailyKwh,1)+
+      " kWh/día. Menos del 5% de holgura no deja nada para una semana nublada."]);
+    else out.push(["bad","×","El arreglo no alcanza",
+      "Faltan "+dec(Math.abs(r.margin),1)+" kWh/día. Agrega paneles o reduce las horas de uso."]);
 
-    // inverter headroom against compressor peak
-    var head = r.invW/r.surgeW;
-    if (head >= 1.15) out.push(["ok","✓","Inverter has surge headroom",
-      dec(r.invW/1000,0)+" kW against a "+dec(r.surgeW/1000,1)+" kW worst-case peak ("+dec(r.surgeW,0)+" W with every compressor at maximum)."]);
-    else out.push(["warn","!","Inverter headroom is tight",
-      dec(r.invW/1000,0)+" kW against a "+dec(r.surgeW/1000,1)+" kW peak. Add a parallel unit before loading it fully."]);
-    return out;
-  }
+    if (!i.bateria){
+      out.push(["bad","×","Sin respaldo en apagón",
+        "Sin banco de baterías esto no es un sistema de respaldo: compensa consumo mientras hay sol, "+
+        "pero los "+r.acUnits+" aires se apagan en el momento en que se cae la red. "+
+        "Cambia «Banco de baterías» a Sí para tener autonomía."]);
+    } else if (r.autonomyH >= i.acHours){
+      out.push(["ok","✓","El banco cubre la noche completa",
+        dec(r.autonomyH,1)+" h de autonomía con un consumo promedio de "+dec(r.avgW,0)+
+        " W — más de las "+dec(i.acHours,1)+" h solicitadas."]);
+    } else {
+      var need = r.avgW*i.acHours/1000/(i.dod/100);
+      out.push(["warn","!","El banco rinde "+dec(r.autonomyH,1)+" h, no "+dec(i.acHours,1)+" h",
+        dec(r.usableKwh,1)+" kWh utilizables a "+dec(r.avgW,0)+" W promedio. Sube la capacidad utilizable a unos "+
+        dec(need*(i.dod/100),0)+" kWh para cubrir la jornada completa."]);
+    }
 
-  function renderVerdict(list){
-    document.getElementById("verdict").innerHTML = list.map(function(v){
-      return '<div class="chk '+v[0]+'"><span class="ic" aria-hidden="true">'+v[1]+'</span>'+
-             '<span><b>'+esc(v[2])+'</b>'+esc(v[3])+'</span></div>';
+    var head = r.surgeW > 0 ? r.invW/r.surgeW : 99;
+    if (head >= 1.15) out.push(["ok","✓","El inversor tiene holgura de arranque",
+      dec(r.invW/1000,0)+" kW contra un pico de "+dec(r.surgeW/1000,1)+" kW ("+dec(r.surgeW,0)+
+      " W con todos los compresores al máximo)."]);
+    else out.push(["warn","!","La holgura del inversor es ajustada",
+      dec(r.invW/1000,0)+" kW contra un pico de "+dec(r.surgeW/1000,1)+
+      " kW. Agrega una unidad en paralelo antes de cargarlo al tope."]);
+
+    document.getElementById("verdict").innerHTML = out.map(function(v){
+      return '<div class="chk '+v[0]+'"><span class="ic" aria-hidden="true">'+v[1]+'</span><span><b>'+
+             esc(v[2])+'</b>'+esc(v[3])+'</span></div>';
     }).join("");
   }
 
+  /* ============ render: cost chart ============ */
   function costChart(r){
-    var rows = CATS.map(function(c){ return { name:c.name, hex:c.hex, v:r.cost[c.key] }; })
-                   .sort(function(a,b){ return b.v - a.v; });
+    var rows = CATS.map(function(c){ return {name:c.name,hex:c.hex,v:r.cost[c.key]}; })
+                   .filter(function(d){ return d.v > 0; })
+                   .sort(function(a,b){ return b.v-a.v; });
+    if (!rows.length){ document.getElementById("costChart").innerHTML=""; return; }
     var max = rows[0].v || 1;
-    var W = 760, padL = 168, padR = 96, rowH = 34, barH = 19;
-    var H = rows.length * rowH + 30;
-    var plotW = W - padL - padR;
-    var ticks = 4, s = "";
+    var W = 780, padL = 196, padR = 104, rowH = 40, barH = 24;
+    var H = rows.length*rowH + 30, plotW = W-padL-padR, ticks = 4, s = "";
 
-    // recessive grid, labelled at values the chart reaches
-    for (var t = 0; t <= ticks; t++){
-      var gx = padL + plotW * t/ticks;
-      s += '<line x1="'+gx+'" y1="6" x2="'+gx+'" y2="'+(H-24)+'" stroke="#e8eeed" stroke-width="1"/>';
+    for (var k = 0; k <= ticks; k++){
+      var gx = padL + plotW*k/ticks;
+      s += '<line x1="'+gx+'" y1="6" x2="'+gx+'" y2="'+(H-24)+'" stroke="#d8d2c4" stroke-width="1.5"/>';
       s += '<text x="'+gx+'" y="'+(H-8)+'" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" '+
-           'font-size="10.5" fill="#7d8d8a">'+(t===0?"$0":copM(max*t/ticks))+'</text>';
+           'font-size="10.5" font-weight="700" fill="#7c7a72">'+(k===0?"$0":copM(max*k/ticks))+'</text>';
     }
     rows.forEach(function(d,idx){
-      var y = 8 + idx*rowH, w = Math.max(2, plotW * d.v/max);
-      s += '<text x="'+(padL-12)+'" y="'+(y+barH/2+4)+'" text-anchor="end" font-family="Source Sans 3, system-ui, sans-serif" '+
-           'font-size="12.5" fill="#4c5f5c">'+esc(d.name)+'</text>';
-      // 2px surface gap under each fill keeps adjacent bars separate
-      s += '<rect x="'+padL+'" y="'+y+'" width="'+w+'" height="'+barH+'" rx="4" ry="4" fill="'+d.hex+'"/>';
-      s += '<text x="'+(padL+w+9)+'" y="'+(y+barH/2+4)+'" font-family="JetBrains Mono, ui-monospace, monospace" font-size="12" '+
-           'font-weight="700" fill="#0e1c1a">'+copM(d.v)+'</text>';
+      var y = 8+idx*rowH, w = Math.max(2, plotW*d.v/max);
+      s += '<text x="'+(padL-12)+'" y="'+(y+barH/2+4)+'" text-anchor="end" '+
+           'font-family="Source Sans 3, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#111111">'+esc(d.name)+'</text>';
+      s += '<rect x="'+padL+'" y="'+y+'" width="'+w+'" height="'+barH+'" rx="5" ry="5" fill="'+d.hex+'" stroke="#111111" stroke-width="3"/>';
+      s += '<text x="'+(padL+w+9)+'" y="'+(y+barH/2+4)+'" font-family="JetBrains Mono, ui-monospace, monospace" '+
+           'font-size="12" font-weight="700" fill="#111111">'+copM(d.v)+'</text>';
     });
     document.getElementById("costChart").innerHTML =
-      '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="min-width:640px" role="img" '+
-      'aria-label="Phase 1 capital cost by category">'+s+'</svg>';
-
-    document.getElementById("costLegend").innerHTML = CATS.map(function(c){
+      '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="min-width:660px" role="img" '+
+      'aria-label="Costo de capital de la Fase 1 por categoría">'+s+'</svg>';
+    document.getElementById("costLegend").innerHTML = rows.map(function(c){
       return '<span class="li"><span class="sw" style="background:'+c.hex+'"></span>'+c.name+'</span>';
     }).join("");
     document.getElementById("costTotalLabel").textContent = cop(r.price)+" COP";
   }
 
-  function ganttChart(sch){
-    var t = sch.tasks, W = 880, padL = 310, padR = 24, rowH = 36, barH = 17;
-    var H = t.length*rowH + 34, plotW = W - padL - padR;
-    var nameX = padL - 60, durX = padL - 14;
-    var days = Math.max(7, sch.days), s = "";
-    var step = days > 42 ? 14 : 7;
+  /* ============ render: gantt ============ */
+  function gantt(sch){
+    var t = sch.tasks, W = 900, padL = 316, padR = 30, rowH = 42, barH = 22;
+    var H = t.length*rowH + 34, plotW = W-padL-padR;
+    var nameX = padL-60, durX = padL-14;
+    var days = Math.max(7, sch.days), s = "", step = days > 42 ? 14 : 7;
 
     for (var d = 0; d <= days; d += step){
-      var gx = padL + plotW * d/days;
-      s += '<line x1="'+gx+'" y1="4" x2="'+gx+'" y2="'+(H-26)+'" stroke="#e8eeed" stroke-width="1"/>';
+      var gx = padL + plotW*d/days;
+      s += '<line x1="'+gx+'" y1="4" x2="'+gx+'" y2="'+(H-26)+'" stroke="#d8d2c4" stroke-width="1.5"/>';
       s += '<text x="'+gx+'" y="'+(H-10)+'" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" '+
-           'font-size="10.5" fill="#7d8d8a">wk '+(d/7)+'</text>';
+           'font-size="10.5" font-weight="700" fill="#7c7a72">sem '+(d/7)+'</text>';
     }
-    // critical-path terminus
-    var ex = padL + plotW;
-    s += '<line x1="'+ex+'" y1="4" x2="'+ex+'" y2="'+(H-26)+'" stroke="#008574" stroke-width="1.5" stroke-dasharray="3 3"/>';
+    var ex = padL+plotW;
+    s += '<line x1="'+ex+'" y1="4" x2="'+ex+'" y2="'+(H-26)+'" stroke="#111111" stroke-width="2.5" stroke-dasharray="5 4"/>';
 
     t.forEach(function(x,idx){
-      var y = 6 + idx*rowH;
-      var bx = padL + plotW * x.s/days;
-      var bw = Math.max(3, plotW * x.d/days);
-      var hex = TRACKS[x.track].hex;
+      var y = 6+idx*rowH, bx = padL+plotW*x.s/days, bw = Math.max(3, plotW*x.d/days);
       s += '<text x="'+nameX+'" y="'+(y+barH/2+1)+'" text-anchor="end" font-family="Archivo, Helvetica Neue, sans-serif" '+
-           'font-size="11.5" font-weight="600" fill="#0e1c1a">'+(idx+1)+'. '+esc(x.n)+'</text>';
+           'font-size="11.5" font-weight="800" fill="#111111">'+(idx+1)+'. '+esc(x.n)+'</text>';
       s += '<text x="'+nameX+'" y="'+(y+barH/2+13)+'" text-anchor="end" font-family="Source Sans 3, system-ui, sans-serif" '+
-           'font-size="10.5" fill="#7d8d8a">'+esc(x.note)+'</text>';
-      s += '<rect x="'+bx+'" y="'+y+'" width="'+bw+'" height="'+barH+'" rx="4" ry="4" fill="'+hex+'"/>';
+           'font-size="10.5" fill="#7c7a72">'+esc(x.note)+'</text>';
+      s += '<rect x="'+bx+'" y="'+y+'" width="'+bw+'" height="'+barH+'" rx="5" ry="5" fill="'+TRACKS[x.track].hex+'" stroke="#111111" stroke-width="3"/>';
       s += '<text x="'+durX+'" y="'+(y+barH/2+4)+'" text-anchor="end" font-family="JetBrains Mono, ui-monospace, monospace" '+
-           'font-size="11" font-weight="700" fill="#4c5f5c">'+x.d+'d</text>';
+           'font-size="11" font-weight="700" fill="#111111">'+x.d+'d</text>';
     });
     document.getElementById("gantt").innerHTML =
       '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="min-width:780px" role="img" '+
-      'aria-label="Build schedule by phase">'+s+'</svg>';
-
+      'aria-label="Cronograma de obra por fase">'+s+'</svg>';
     document.getElementById("ganttLegend").innerHTML = Object.keys(TRACKS).map(function(k){
       return '<span class="li"><span class="sw" style="background:'+TRACKS[k].hex+'"></span>'+TRACKS[k].name+'</span>';
     }).join("");
-    document.getElementById("ganttTotal").textContent = sch.days+" days · ≈"+dec(sch.days/7,1)+" weeks";
+    document.getElementById("ganttTotal").textContent = sch.days+" días · ≈"+dec(sch.days/7,1)+" semanas";
   }
 
+  /* ============ render: phases ============ */
   function phases(a, b, i){
     function rows(r){
       return [
-        ["Air conditioners", r.acUnits + " × 18k BTU"],
-        ["Daily energy",     dec(r.dailyKwh,1) + " kWh/day"],
-        ["Solar panels",     r.panels + " × " + i.panelW + " Wp"],
-        ["Array size",       dec(r.arrayKwp,2) + " kWp"],
-        ["Usable storage",   dec(r.usableKwh,1) + " kWh"],
-        ["Inverter capacity",dec(r.invW/1000,0) + " kW"],
-        ["Capital cost",     copM(r.price) + " COP"]
+        ["Aires acondicionados", r.acUnits+" × 18k BTU"],
+        ["Energía diaria",  dec(r.dailyKwh,1)+" kWh/día"],
+        ["Paneles solares",      r.panels+" × "+i.panelW+" Wp"],
+        ["Tamaño del arreglo", dec(r.arrayKwp,2)+" kWp"],
+        ["Almacenamiento útil", i.bateria ? dec(r.usableKwh,1)+" kWh" : "sin batería"],
+        ["Capacidad del inversor", dec(r.invW/1000,0)+" kW"],
+        ["Costo de capital",     copM(r.price)+" COP"]
       ].map(function(x){ return '<div class="prow"><span>'+x[0]+'</span><b>'+esc(x[1])+'</b></div>'; }).join("");
     }
     document.getElementById("phases").innerHTML =
-      '<div class="phase now"><h3>Phase 1 &mdash; initial</h3><div class="cap">Commissioned first; carries '+
-        a.acUnits+' split units.</div>'+rows(a)+'</div>'+
+      '<div class="phase now"><h3>Fase 1 &mdash; inicial</h3><div class="cap">Se pone en marcha primero; soporta '+
+        a.acUnits+' unidades split.</div>'+rows(a)+'</div>'+
       '<div class="arrow" aria-hidden="true">'+dec(i.expansion,1)+'× →</div>'+
-      '<div class="phase fin"><h3>Final form</h3><div class="cap">'+dec(i.expansion,1)+
-        '× the initial power, added incrementally.</div>'+rows(b)+'</div>';
+      '<div class="phase fin"><h3>Forma final</h3><div class="cap">'+dec(i.expansion,1)+
+        '× la potencia inicial, agregada por partes.</div>'+rows(b)+'</div>';
 
-    var addPanels = b.panels - a.panels,
-        addMods   = b.modules - a.modules,
-        addInv    = b.inverters - a.inverters,
-        delta     = b.price - a.price;
+    var addP = b.panels-a.panels, addM = b.modules-a.modules, addI = b.inverters-a.inverters;
+    var bat = i.bateria
+      ? addM+" módulos LiFePO₄ más ("+dec(b.bankKwh-a.bankKwh,1)+" kWh)"
+      : "el banco de baterías que hoy no está cotizado";
     document.getElementById("expNote").innerHTML =
-      "<strong>To get from Phase 1 to the final form:</strong> add " + addPanels + " more panels (" +
-      dec(b.arrayKwp - a.arrayKwp,2) + " kWp), " + addMods + " more LiFePO₄ modules (" +
-      dec(b.bankKwh - a.bankKwh,1) + " kWh) and " + (addInv > 0 ? addInv + " more 8 kW inverter" +
-      (addInv > 1 ? "s" : "") + " in parallel" : "no additional inverter — the Phase 1 unit already carries it") +
-      ", for roughly " + copM(delta) + " COP more. Reserve the roof area and run the DC conduit and " +
-      "battery-rack space for the full " + b.panels + " panels and " + b.modules +
-      " modules during Phase 1 — that is the whole point of building it expandable.";
-    document.getElementById("expLabel").textContent = dec(i.expansion,1) + "×";
+      "<strong>Para pasar de la Fase 1 a la forma final:</strong> agregar "+addP+" paneles ("+
+      dec(b.arrayKwp-a.arrayKwp,2)+" kWp), "+bat+" y "+
+      (addI > 0 ? addI+" inversor"+(addI>1?"es":"")+" de 8 kW en paralelo"
+                : "ningún inversor adicional — el de la Fase 1 ya lo soporta")+
+      ", por unos "+copM(b.price-a.price)+" COP más. Deja reservada desde la Fase 1 el área de cubierta, "+
+      "la tubería DC y el espacio de gabinete para los "+b.panels+" paneles"+
+      (i.bateria ? " y los "+b.modules+" módulos" : "")+
+      " — eso es exactamente lo que hace que el sistema sea ampliable.";
+    document.getElementById("expLabel").textContent = dec(i.expansion,1)+"×";
   }
 
-  function bom(r, i){
-    var items = [
-      ["pv",      "Monocrystalline PV module",  i.panelW+" Wp N-type, 25-yr performance warranty",
-                  r.panels, i.panelW*PRICE.panelPerWp, r.cost.pv],
-      ["storage", "LiFePO₄ battery module", "5,12 kWh · 48 V · 100 Ah · rack mount",
-                  r.modules, PRICE.batteryModule, r.cost.storage],
-      ["inv",     "Hybrid inverter/charger",     "8 kW · 48 V · parallel-capable, dual MPPT",
-                  r.inverters, PRICE.inverterUnit, r.inverters*PRICE.inverterUnit],
-      ["inv",     "Balance of system",           "DC/AC protections, breakers, surge arrestors, earthing, cable",
-                  1, r.bos, r.bos],
-      ["mount",   "Mounting structure",          "Anodised aluminium rail, coastal-grade fixings",
-                  r.panels, PRICE.mountPerPanel, r.cost.mount],
-      ["labour",  "Installation labour",         Math.round(LABOUR_RATE*100)+"% of equipment value",
-                  1, r.cost.labour-PRICE.engineering, r.cost.labour-PRICE.engineering],
-      ["labour",  "Engineering & design",        "Load study, single-line diagram, RETIE dossier",
-                  1, PRICE.engineering, PRICE.engineering],
-      ["permit",  "Permits & certification",     i.grid ? "RETIE certification + operador de red interconnection"
-                                                        : "RETIE certification (islanded, no interconnection)",
-                  1, r.cost.permit, r.cost.permit]
-    ];
-    var byKey = {}; CATS.forEach(function(c){ byKey[c.key] = c.hex; });
+  /* ============ render: price provenance (editable) ============ */
+  var SOURCES = {
+    panel: { band:"$400.000 – $750.000 por módulo de 550–620 Wp",
+      src:[["SolarTech","https://solartech.com.co/precios-paneles-solares-colombia/"],
+           ["AutoSolar","https://autosolar.co/energia-solar/cuanto-cuesta-un-panel-solar-en-colombia"]],
+      note:"Los más vendidos rondan $580.000. El rango completo del mercado va de $297.000 a $1.165.000 según potencia y marca." },
+    battery: { band:"desde $7.000.000 por 5 kWh instalados",
+      src:[["Sunny Future","https://www.sunnyfuture.co/baterias-solares-4/"],
+           ["AutoSolar","https://autosolar.co/baterias-de-litio"],
+           ["SolarShop","https://www.solarshop.com.co/item-bateria-de-litio-512kwh-48v-100ah-lifepo4-fla48100-e9d82a95-68e4-c2ce-4c65-8f4d9cbf1153"]],
+      note:"El litio de calidad suma entre $15M y $40M a un sistema residencial." },
+    inverter: { band:"híbrido 8 kW 48 V, fase dividida",
+      src:[["Emergente","https://emergente.com.co/blog/producto/inversor-hibrido-deye-8kw-fase-dividida"],
+           ["INELDEC","https://ineldec.com/producto/inversor-hibrido-8kw-48v-deye-sun-8k-sg01lp1/"],
+           ["AutoSolar","https://autosolar.co/inversores-solares-hibridos"]],
+      note:"Se cotiza híbrido (no on-grid) incluso sin baterías, para que el banco se pueda agregar después sin cambiar el inversor." },
+    mount: { band:"estructura de aluminio, fijación costera", src:[],
+      note:"Estimación por panel; sube en cubierta de teja o con lastre." },
+    bos: { band:"protecciones, DPS, puesta a tierra, cable", src:[],
+      note:"Base fija más $120.000 por panel adicional." },
+    eng: { band:"estudio de cargas, unifilar, expediente RETIE", src:[],
+      note:"Valor fijo del proyecto, independiente del tamaño." },
+    labourPct: { band:"10% – 20% del valor de equipos", src:[],
+      note:"Práctica del sector para residencial; la instalación física toma 1–3 días." }
+  };
+  var PRICE_ROWS = [
+    ["panel","Panel solar","por módulo","cop"],
+    ["battery","Módulo LiFePO₄ 5,12 kWh","48 V · 100 Ah · rack","cop"],
+    ["inverter","Inversor híbrido 8 kW","paralelizable, doble MPPT","cop"],
+    ["mount","Estructura de montaje","por panel","cop"],
+    ["bos","Balance del sistema","base del proyecto","cop"],
+    ["eng","Ingeniería y RETIE","valor fijo","cop"],
+    ["labourPct","Mano de obra","% del valor de equipos","pct"]
+  ];
+  function pricesTable(i){
+    var h = '<caption>Escribe tu propio valor en cualquier celda y el presupuesto completo se recalcula.</caption>'+
+      '<thead><tr><th>Componente</th><th class="n">Precio unitario usado</th>'+
+      '<th>Rango de mercado publicado</th><th>Fuente</th></tr></thead><tbody>';
+    PRICE_ROWS.forEach(function(row){
+      var key = row[0], s = SOURCES[key];
+      var isPct = row[3] === "pct";
+      var derived = "";
+      if (key === "panel") derived = '<span class="derived">= '+cop(P.panel/i.panelW)+"/Wp</span>";
+      h += '<tr>'+
+        '<td><strong>'+row[1]+'</strong><span class="spec">'+row[2]+'</span></td>'+
+        '<td class="n"><div class="price-in"><input type="number" id="p_'+key+'" value="'+P[key]+
+          '" min="0" step="'+(isPct?"0.5":"1000")+'" aria-label="'+esc(row[1])+'">'+
+          (key==="panel"?derived:"")+'</div></td>'+
+        '<td class="band">'+s.band+'<span class="spec">'+s.note+'</span></td>'+
+        '<td class="src">'+(s.src.length
+            ? s.src.map(function(x){ return '<a href="'+x[1]+'" target="_blank" rel="noopener">'+x[0]+'</a>'; }).join("<br>")
+            : '<span class="spec">Estimación propia de obra</span>')+'</td>'+
+      '</tr>';
+    });
+    h += '</tbody>';
+    document.getElementById("prices").innerHTML = h;
+  }
 
-    var h = '<thead><tr><th>Item</th><th class="n">Qty</th><th class="n">Unit</th><th class="n">Subtotal</th></tr></thead><tbody>';
+  var SUPPLIERS = [
+    ["AutoSolar Colombia","Catálogo general de paneles","Rango publicado $297.000 – $1.165.000 según potencia y tecnología","https://autosolar.co/paneles-solares"],
+    ["ColombiaEnergy","Panel 565–585 W, precio unificado","Marcas Trina, Longi, JA, EcoGreen y Astro","https://colombiaenergy.com.co/products/panel-solar-585-w"],
+    ["Solphower","Jinko 585 W monofacial tipo N","Despacho nacional desde Cali","https://solphower.co/es/productos/panel-solar-jinko-585w-monofacial-tipo-n"],
+    ["Sunny Future","Astro Energy 585 W monofacial","Opera en Santa Marta — el sitio de este proyecto","https://www.sunnyfuture.co/product/panel-solar-585w-astro/"],
+    ["Emergente","Luxen 585 W bifacial","También distribuye inversores Deye","https://www.emergente.com.co/producto/panel-solar-de-585w-bifacial-luxen"],
+    ["INELDEC","Luxen 585 W Monoperc","Paneles, litio e inversores híbridos","https://ineldec.com/producto/panel-solar-590w-monocristalino-perc/"],
+    ["SolarShop Colombia","Monocristalino 550 W celda dividida","Catálogo con litio 48 V","https://www.solarshop.com.co/item-panel-solar-monocristalino-celda-dividida-550w-55d60772-626a-46e4-e41c-5b08ea6f0c6b"],
+    ["OPS Colombia","Calculadora y radiación por ciudad","Fuente de los 5,5 HSP de Santa Marta (IDEAM/UPME)","https://www.opscolombia.com/ciudad/santa-marta"]
+  ];
+  function suppliersTable(){
+    var h = '<thead><tr><th>Proveedor</th><th>Producto de referencia</th><th>Notas</th></tr></thead><tbody>';
+    SUPPLIERS.forEach(function(s){
+      h += '<tr><td class="src"><a href="'+s[3]+'" target="_blank" rel="noopener"><strong>'+s[0]+'</strong></a></td>'+
+           '<td>'+s[1]+'</td><td><span class="spec" style="margin:0">'+s[2]+'</span></td></tr>';
+    });
+    document.getElementById("suppliers").innerHTML = h + '</tbody>';
+  }
+
+  /* ============ render: bill of materials ============ */
+  function bom(r, i){
+    var items = [];
+    items.push(["pv","Panel solar monocristalino", i.panelW+" Wp tipo N, garantía de rendimiento 25 años",
+                r.panels, P.panel, r.cost.pv]);
+    if (i.bateria) items.push(["storage","Módulo de batería LiFePO₄","5,12 kWh · 48 V · 100 Ah · rack",
+                r.modules, P.battery, r.cost.storage]);
+    items.push(["inv","Inversor/cargador híbrido","8 kW · 48 V · paralelizable, doble MPPT",
+                r.inverters, P.inverter, r.inverters*P.inverter]);
+    items.push(["inv","Balance del sistema","Protecciones DC/AC, DPS, puesta a tierra, cableado",
+                1, r.bos, r.bos]);
+    items.push(["mount","Estructura de montaje","Riel de aluminio anodizado, fijación grado costero",
+                r.panels, P.mount, r.cost.mount]);
+    items.push(["labour","Mano de obra de instalación", dec(P.labourPct,0)+"% del valor de equipos",
+                1, r.cost.labour-P.eng, r.cost.labour-P.eng]);
+    items.push(["labour","Ingeniería y diseño","Estudio de cargas, diagrama unifilar, expediente RETIE",
+                1, P.eng, P.eng]);
+    items.push(["permit","Permisos y certificación", i.grid
+                ? "Certificación RETIE + conexión ante operador de red"
+                : "Certificación RETIE (sistema aislado)", 1, r.cost.permit, r.cost.permit]);
+
+    var byKey = {}; CATS.forEach(function(c){ byKey[c.key] = c.hex; });
+    var h = '<caption>Las cantidades salen del dimensionamiento; los precios unitarios, de la tabla de trazabilidad.</caption>'+
+      '<thead><tr><th>Ítem</th><th class="n">Cant.</th><th class="n">Unitario</th><th class="n">Subtotal</th></tr></thead><tbody>';
     items.forEach(function(x){
       h += '<tr><td><div class="swcell"><span class="sw" style="background:'+byKey[x[0]]+'"></span>'+
            '<span><strong>'+esc(x[1])+'</strong><span class="spec">'+esc(x[2])+'</span></span></div></td>'+
            '<td class="n">'+x[3]+'</td><td class="n">'+cop(x[4])+'</td><td class="n">'+cop(x[5])+'</td></tr>';
     });
     h += '</tbody><tfoot>';
-    h += '<tr><td colspan="3">Equipment, labour and permits</td><td class="n">'+cop(r.subtotal)+'</td></tr>';
-    h += '<tr><td colspan="3" style="font-weight:400;color:var(--ink-2)">Installer margin ('+dec(i.margin,0)+'%)</td>'+
-         '<td class="n" style="font-weight:400">'+cop(r.total-r.subtotal)+'</td></tr>';
-    if (i.ley){
-      h += '<tr><td colspan="3" style="font-weight:400;color:var(--accent-deep)">IVA excluded under Ley 1715 '+
-           '(19% not charged)</td><td class="n" style="font-weight:400;color:var(--accent-deep)">−'+
-           cop(r.ivaSaved)+'</td></tr>';
-    } else {
-      h += '<tr><td colspan="3" style="font-weight:400;color:var(--ink-2)">IVA (19%)</td>'+
-           '<td class="n" style="font-weight:400">'+cop(r.price-r.total)+'</td></tr>';
-    }
-    h += '<tr><td colspan="3" style="font-size:15px">Total installed cost</td><td class="n" style="font-size:15px">'+
+    h += '<tr><td colspan="3">Equipos, mano de obra y permisos</td><td class="n">'+cop(r.subtotal)+'</td></tr>';
+    h += '<tr><td colspan="3" style="font-weight:400;color:#4a4a46">Margen del instalador ('+dec(i.margin,0)+
+         '%)</td><td class="n" style="font-weight:400">'+cop(r.total-r.subtotal)+'</td></tr>';
+    if (i.ley) h += '<tr><td colspan="3" style="font-weight:400;color:#0a7a22">'+
+         'IVA excluido por Ley 1715 (19% no cobrado)</td><td class="n" style="font-weight:400;color:#0a7a22">−'+
+         cop(r.ivaSaved)+'</td></tr>';
+    else h += '<tr><td colspan="3" style="font-weight:400;color:#4a4a46">IVA (19%)</td>'+
+         '<td class="n" style="font-weight:400">'+cop(r.price-r.total)+'</td></tr>';
+    h += '<tr><td colspan="3" style="font-size:15px">Costo total instalado</td><td class="n" style="font-size:15px">'+
          cop(r.price)+'</td></tr>';
-    h += '<tr><td colspan="4" style="font-weight:400;font-size:12.5px;color:var(--ink-3);border-bottom:0">'+
-         'Separately, Ley 1715 allows 50% of the investment to be deducted from income tax over up to 15 years '+
-         '— worth about '+cop(r.renta)+' at a 35% rate. It is a tax benefit, not a discount on this price.'+
-         '</td></tr>';
-    h += '</tfoot>';
-    document.getElementById("bom").innerHTML =
-      '<caption>Unit prices are 2026 Colombian street prices; quantities come from the sizing above.</caption>' + h;
+    h += '<tr><td colspan="4" style="font-weight:400;font-size:12.5px;color:#7c7a72;border-bottom:0">'+
+         'Aparte, la Ley 1715 permite deducir el 50% de la inversión del impuesto de renta hasta en 15 años '+
+         '— unos '+cop(r.renta)+' a una tarifa del 35%. Es un beneficio tributario, no un descuento sobre este precio.'+
+         '</td></tr></tfoot>';
+    document.getElementById("bom").innerHTML = h;
+
+    document.getElementById("grounding").innerHTML =
+      "<strong>De dónde salen las cifras técnicas.</strong> Santa Marta está alrededor de 5,5 kWh/m²·día, "+
+      "la franja más alta de Colombia (atlas solar IDEAM/UPME), con más de 2.400 horas de sol al año. "+
+      "El aire acondicionado de referencia es un Midea Solstice EZ-18RD6: 18.000 BTU/h, 5,3 kW de enfriamiento, "+
+      "R32 full-DC inverter, consumo en frío de 634 a 2.120 W, SEER 8,5 — por eso el pico de arranque se calcula "+
+      "a 2.120 W por unidad y no al nominal. La instalación física toma 1–3 días y el trámite ante el "+
+      "operador de red entre 3 y 6 semanas. La Ley 1715 de 2014 y la Ley 2099 de 2021 dan exclusión de IVA más "+
+      "deducción del 50% en renta, juntas hasta cerca del 40% del costo del proyecto.";
   }
 
-  /* ---------- persistence ---------- */
-  function save(i){ try { localStorage.setItem(STORE, JSON.stringify(i)); } catch(e){} }
+  /* ============ persistence ============ */
+  function save(i){
+    try {
+      var o = {}; NUMS.forEach(function(k){ o[k]=i[k]; });
+      o.ley=i.ley; o.grid=i.grid; o.bateria=i.bateria;
+      PRICE_IDS.forEach(function(k){ o["p_"+k]=P[k]; });
+      localStorage.setItem(STORE, JSON.stringify(o));
+    } catch(e){}
+  }
   function restore(){
-    var raw = null;
-    try { raw = localStorage.getItem(STORE); } catch(e){ return; }
+    var raw; try { raw = localStorage.getItem(STORE); } catch(e){ return; }
     if (!raw) return;
     var v; try { v = JSON.parse(raw); } catch(e){ return; }
     if (!v || typeof v !== "object") return;
-    NUMS.forEach(function(k){ if (isFinite(v[k])) document.getElementById(k).value = v[k]; });
-    if (typeof v.ley  === "boolean") document.getElementById("ley").checked  = v.ley;
-    if (typeof v.grid === "boolean") document.getElementById("grid").checked = v.grid;
+    NUMS.forEach(function(k){
+      if (isFinite(v[k])) { var el=document.getElementById(k); if (el) el.value = v[k]; }
+    });
+    if (typeof v.ley==="boolean")  document.getElementById("ley").checked  = v.ley;
+    if (typeof v.grid==="boolean") document.getElementById("grid").checked = v.grid;
+    if (typeof v.bateria==="boolean") bateria = v.bateria;
+    PRICE_IDS.forEach(function(k){ if (isFinite(v["p_"+k])) P[k] = v["p_"+k]; });
   }
 
-  /* ---------- main ---------- */
+  /* ============ main ============ */
+  var built = false;
   function run(){
     var i = read();
-    var p1 = size(i, 1);
-    var pf = size(i, i.expansion);
-    var sch = schedule(p1, i.grid);
+
+    // battery toggle drives both the segmented control and the storage inputs
+    document.getElementById("batYes").setAttribute("aria-pressed", String(bateria));
+    document.getElementById("batNo").setAttribute("aria-pressed", String(!bateria));
+    var sEl = document.getElementById("storage"), dEl = document.getElementById("dod");
+    sEl.disabled = !bateria; dEl.disabled = !bateria;
+    sEl.closest("td").style.opacity = bateria ? "1" : ".4";
+    document.getElementById("dodField").classList.toggle("off", !bateria);
+
+    var p1 = size(i, 1), pf = size(i, i.expansion), sch = schedule(p1, i);
 
     document.getElementById("hspBadge").textContent = dec(i.hsp,1);
-    tiles(p1, sch);
-    renderVerdict(verdict(p1, i));
+    tiles(p1, sch, i);
+    verdict(p1, i);
     costChart(p1);
+    if (!built){ pricesTable(i); suppliersTable(); built = true; }
+    else { var pd=document.querySelector("#prices .derived");
+           if (pd) pd.textContent = "= "+cop(P.panel/i.panelW)+"/Wp"; }
     phases(p1, pf, i);
-    ganttChart(sch);
+    gantt(sch);
     bom(p1, i);
     save(i);
   }
 
-  document.getElementById("rail").addEventListener("input", run);
+  document.addEventListener("input", function(e){
+    if (e.target.tagName === "INPUT") run();
+  });
+  document.getElementById("batYes").addEventListener("click", function(){ bateria = true;  run(); });
+  document.getElementById("batNo").addEventListener("click",  function(){ bateria = false; run(); });
   document.getElementById("reset").addEventListener("click", function(){
-    NUMS.forEach(function(k){ document.getElementById(k).value = DEFAULTS[k]; });
-    document.getElementById("ley").checked  = DEFAULTS.ley;
-    document.getElementById("grid").checked = DEFAULTS.grid;
+    NUMS.forEach(function(k){ var el=document.getElementById(k); if (el) el.value = DEF[k]; });
+    document.getElementById("ley").checked  = DEF.ley;
+    document.getElementById("grid").checked = DEF.grid;
+    bateria = DEF.bateria;
+    P.panel=520000; P.battery=6500000; P.inverter=9500000; P.mount=180000;
+    P.bos=1400000; P.eng=2500000; P.labourPct=15;
+    PRICE_IDS.forEach(function(k){ var el=document.getElementById("p_"+k); if (el) el.value = P[k]; });
     run();
   });
   document.getElementById("rail").addEventListener("submit", function(e){ e.preventDefault(); });
