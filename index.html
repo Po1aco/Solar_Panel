@@ -1,0 +1,787 @@
+<title>Caribe Solar Sizer</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root{
+    color-scheme: light;
+    --ground:#f6f8f7;
+    --surface:#ffffff;
+    --surface-sunk:#eff3f2;
+    --ink:#0e1c1a;
+    --ink-2:#4c5f5c;
+    --ink-3:#7d8d8a;
+    --line:#dbe4e2;
+    --line-soft:#e8eeed;
+    --accent:#008574;
+    --accent-deep:#00614f;
+    --accent-wash:#e6f2f0;
+    --solar:#c06a00;
+    --solar-wash:#fbf0e2;
+
+    --s1:#008574;  /* PV modules */
+    --s2:#c06a00;  /* Storage */
+    --s3:#2e5aa8;  /* Inverter */
+    --s4:#a63a62;  /* Structure */
+    --s5:#6e56c8;  /* Labour */
+    --s6:#c4453c;  /* Permits */
+
+    --font-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+    --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:var(--font-display);margin:0;text-wrap:balance;letter-spacing:-.015em}
+  .num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+
+  .eyebrow{
+    font-family:var(--font-display);
+    font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.14em;color:var(--ink-3);
+  }
+
+  /* ---------- shell ---------- */
+  .masthead{
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+    padding:22px 32px 20px;
+  }
+  .masthead-in{max-width:1320px;margin:0 auto;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between}
+  .masthead h1{font-size:26px;font-weight:700;line-height:1.1}
+  .masthead p{margin:6px 0 0;color:var(--ink-2);font-size:14.5px;max-width:62ch}
+  .sun{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:var(--font-display);font-size:11px;font-weight:600;
+    text-transform:uppercase;letter-spacing:.1em;
+    background:var(--solar-wash);color:#8a4c00;
+    padding:5px 11px;border-radius:100px;white-space:nowrap;
+  }
+  .sun b{font-family:var(--font-mono);font-size:12px;letter-spacing:0}
+
+  .wrap{max-width:1320px;margin:0 auto;padding:26px 32px 60px;display:grid;grid-template-columns:330px minmax(0,1fr);gap:26px;align-items:start}
+  @media (max-width:1020px){
+    .wrap{grid-template-columns:1fr;padding:20px 18px 48px}
+    .masthead{padding:18px}
+  }
+
+  /* ---------- control rail ---------- */
+  .rail{position:sticky;top:20px;display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  @media (max-width:1020px){.rail{position:static}}
+  .rail-head{padding:14px 16px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .rail-head h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+  .reset{
+    background:none;border:1px solid var(--line);color:var(--ink-2);
+    font-family:var(--font-display);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+    padding:4px 9px;border-radius:5px;cursor:pointer;
+  }
+  .reset:hover{border-color:var(--accent);color:var(--accent)}
+  .reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  fieldset{border:0;margin:0;padding:15px 16px;border-bottom:1px solid var(--line-soft)}
+  fieldset:last-of-type{border-bottom:0}
+  legend{padding:0 0 10px;width:100%}
+
+  .field{display:grid;grid-template-columns:1fr 92px;gap:8px 10px;align-items:center;margin-bottom:11px}
+  .field:last-child{margin-bottom:0}
+  .field > label{font-size:13.5px;color:var(--ink-2);line-height:1.3}
+  .field > label small{display:block;color:var(--ink-3);font-size:11.5px}
+  .field input[type=number]{
+    width:100%;padding:6px 8px;
+    font-family:var(--font-mono);font-size:13.5px;font-variant-numeric:tabular-nums;
+    text-align:right;color:var(--ink);
+    background:var(--surface);border:1px solid var(--line);border-radius:5px;
+  }
+  .field input[type=number]:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+
+  .hero-field{background:var(--accent-wash);margin:-15px -16px 15px;padding:15px 16px;border-bottom:1px solid #cfe6e2}
+  .hero-field .field{grid-template-columns:1fr 110px;margin-bottom:0}
+  .hero-field label{color:var(--accent-deep);font-weight:600;font-size:14px}
+  .hero-field label small{color:#3d7d72;font-weight:400}
+  .hero-field input[type=number]{font-size:19px;font-weight:700;border-color:#b6dbd5;padding:7px 9px}
+
+  .toggles{display:flex;flex-direction:column;gap:9px}
+  .toggle{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);cursor:pointer}
+  .toggle input{margin:2px 0 0;accent-color:var(--accent);width:15px;height:15px;flex:none}
+  .toggle span small{display:block;color:var(--ink-3);font-size:11.5px}
+
+  /* ---------- results ---------- */
+  .canvas{display:flex;flex-direction:column;gap:22px;min-width:0}
+  section.block{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 22px}
+  .block-head{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+  .block-head h2{font-size:16.5px;font-weight:700}
+  .block-head p{margin:2px 0 0;color:var(--ink-2);font-size:13.5px;max-width:70ch}
+
+  /* headline tiles */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tile{background:var(--surface);padding:15px 16px 14px;display:flex;flex-direction:column;gap:3px}
+  .tile .k{font-family:var(--font-display);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--ink-3)}
+  .tile .v{font-family:var(--font-mono);font-size:25px;font-weight:700;line-height:1.15;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .tile .u{font-size:12.5px;color:var(--ink-2);font-family:var(--font-body)}
+  .tile.lead{background:#04302a}
+  .tile.lead .k{color:#7fc3b8}
+  .tile.lead .v{color:#fff}
+  .tile.lead .u{color:#a9d8d0}
+
+  /* verdict strip */
+  .verdict{display:flex;flex-wrap:wrap;gap:10px}
+  .chk{
+    display:flex;gap:9px;align-items:flex-start;flex:1 1 240px;
+    padding:11px 13px;border-radius:8px;border:1px solid;font-size:13.5px;line-height:1.4;
+  }
+  .chk .ic{font-family:var(--font-display);font-weight:700;font-size:12px;flex:none;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;color:#fff;margin-top:1px}
+  .chk b{display:block;font-family:var(--font-display);font-size:13px;font-weight:700}
+  .chk.ok{background:#eaf4f2;border-color:#bcdcd6;color:#1f4a43}
+  .chk.ok .ic{background:var(--accent)}
+  .chk.warn{background:#fdf3e6;border-color:#eed6b3;color:#6d4108}
+  .chk.warn .ic{background:var(--solar)}
+  .chk.bad{background:#fceceb;border-color:#f0cdcb;color:#7d2a26}
+  .chk.bad .ic{background:var(--s6)}
+
+  /* charts */
+  .chart{width:100%;overflow-x:auto}
+  .chart svg{display:block}
+  .legend{display:flex;flex-wrap:wrap;gap:5px 16px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line-soft)}
+  .legend .li{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2)}
+  .legend .sw{width:11px;height:11px;border-radius:3px;flex:none}
+
+  /* expansion */
+  .phases{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  @media (max-width:720px){.phases{grid-template-columns:1fr}}
+  .phase{padding:16px 18px}
+  .phase.now{background:var(--surface)}
+  .phase.fin{background:var(--surface-sunk)}
+  .phase h3{font-size:14px;font-weight:700;margin-bottom:2px}
+  .phase .cap{font-size:12.5px;color:var(--ink-2);margin-bottom:13px}
+  .arrow{display:grid;place-items:center;padding:0 14px;background:var(--surface-sunk);border-left:1px solid var(--line);border-right:1px solid var(--line);color:var(--accent);font-family:var(--font-mono);font-size:13px;font-weight:700}
+  @media (max-width:720px){.arrow{padding:9px;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}}
+  .prow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line-soft);font-size:13.5px}
+  .prow:last-child{border-bottom:0}
+  .prow span{color:var(--ink-2)}
+  .prow b{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;font-size:14px}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  caption{text-align:left;color:var(--ink-3);font-size:12.5px;padding-bottom:9px}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  thead th{
+    font-family:var(--font-display);font-size:10.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);
+    border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  td.n,th.n{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  tbody tr:last-child td{border-bottom:1px solid var(--line)}
+  tfoot td{font-weight:700;font-size:14px;padding-top:11px}
+  .swcell{display:flex;align-items:center;gap:9px}
+  .swcell .sw{width:9px;height:22px;border-radius:2px;flex:none}
+  .spec{color:var(--ink-3);font-size:12px;display:block;margin-top:1px}
+
+  .note{font-size:12.5px;color:var(--ink-3);line-height:1.5;margin:14px 0 0}
+  .note a{color:var(--accent-deep)}
+  .srcs{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:9px;font-size:12.5px}
+  .srcs a{color:var(--accent-deep);text-decoration:none;border-bottom:1px solid #b6dbd5}
+  .srcs a:hover{border-bottom-color:var(--accent)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <div>
+      <div class="eyebrow">Off-grid backup sizing &middot; Colombian Caribbean</div>
+      <h1>Caribe Solar Sizer</h1>
+      <p>Sizes an expandable battery-backed solar array from the loads it has to carry &mdash; panels, storage, inverters, cost in COP and a dependency-ordered build schedule.</p>
+    </div>
+    <div class="sun">Santa Marta HSP <b id="hspBadge">5.5</b> kWh/m&sup2;&middot;d</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <form class="rail" id="rail" autocomplete="off">
+    <div class="rail-head">
+      <h2>Design inputs</h2>
+      <button type="button" class="reset" id="reset">Reset</button>
+    </div>
+
+    <fieldset>
+      <legend class="eyebrow">Storage target</legend>
+      <div class="hero-field">
+        <div class="field">
+          <label for="storage">Usable capacity<small>kWh delivered to loads</small></label>
+          <input type="number" id="storage" value="12" min="1" max="200" step="0.5">
+        </div>
+      </div>
+      <div class="field">
+        <label for="dod">Usable depth of discharge<small>LiFePO&#8324; &mdash; % of nameplate</small></label>
+        <input type="number" id="dod" value="90" min="50" max="100" step="1">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend class="eyebrow">Air conditioning load</legend>
+      <div class="field">
+        <label for="acUnits">Split units<small>Midea Solstice 18,000 BTU/h class</small></label>
+        <input type="number" id="acUnits" value="2" min="0" max="40" step="1">
+      </div>
+      <div class="field">
+        <label for="acWatts">Rated input each<small>W &mdash; datasheet band 634&ndash;2,120 W</small></label>
+        <input type="number" id="acWatts" value="1600" min="200" max="4000" step="10">
+      </div>
+      <div class="field">
+        <label for="acHours">Run hours per day<small>h</small></label>
+        <input type="number" id="acHours" value="8" min="0" max="24" step="0.5">
+      </div>
+      <div class="field">
+        <label for="duty">Inverter duty cycle<small>% of rated input, averaged</small></label>
+        <input type="number" id="duty" value="65" min="20" max="100" step="1">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend class="eyebrow">Other loads</legend>
+      <div class="field">
+        <label for="otherKwh">Daily energy<small>kWh/day &mdash; fridge, lights, pumps</small></label>
+        <input type="number" id="otherKwh" value="4" min="0" max="200" step="0.5">
+      </div>
+      <div class="field">
+        <label for="otherPeak">Simultaneous peak<small>W</small></label>
+        <input type="number" id="otherPeak" value="1500" min="0" max="20000" step="50">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend class="eyebrow">Site &amp; hardware</legend>
+      <div class="field">
+        <label for="hsp">Peak sun hours<small>kWh/m&sup2;&middot;day (HSP)</small></label>
+        <input type="number" id="hsp" value="5.5" min="2" max="8" step="0.1">
+      </div>
+      <div class="field">
+        <label for="pr">Performance ratio<small>% &mdash; soiling, heat, round-trip</small></label>
+        <input type="number" id="pr" value="78" min="50" max="95" step="1">
+      </div>
+      <div class="field">
+        <label for="panelW">Panel wattage<small>Wp per module</small></label>
+        <input type="number" id="panelW" value="585" min="100" max="800" step="5">
+      </div>
+      <div class="field">
+        <label for="expansion">Final-form multiplier<small>&times; the initial power</small></label>
+        <input type="number" id="expansion" value="2.5" min="1" max="10" step="0.1">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend class="eyebrow">Commercial</legend>
+      <div class="field">
+        <label for="margin">Installer margin<small>%</small></label>
+        <input type="number" id="margin" value="12" min="0" max="60" step="1">
+      </div>
+      <div class="toggles">
+        <label class="toggle"><input type="checkbox" id="ley" checked><span>Apply Ley 1715 IVA exclusion<small>Removes 19% VAT on equipment and services</small></span></label>
+        <label class="toggle"><input type="checkbox" id="grid" checked><span>Grid interconnection<small>Adds operador de red filing to the schedule</small></span></label>
+      </div>
+    </fieldset>
+  </form>
+
+  <main class="canvas">
+    <div class="tiles" id="tiles"></div>
+
+    <section class="block">
+      <div class="block-head">
+        <div>
+          <div class="eyebrow">Sanity checks</div>
+          <h2>Does the design actually carry the load?</h2>
+          <p>Generation margin, night-time autonomy and inverter headroom, recomputed from the inputs on the left.</p>
+        </div>
+      </div>
+      <div class="verdict" id="verdict"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <div>
+          <div class="eyebrow">Phase 1 capital cost</div>
+          <h2>Where the money goes</h2>
+          <p>Colombian market rates, 2026. Bars are labelled directly; the full bill of materials is at the foot of the page.</p>
+        </div>
+        <div class="num" id="costTotalLabel" style="font-size:15px;font-weight:700"></div>
+      </div>
+      <div class="chart" id="costChart"></div>
+      <div class="legend" id="costLegend"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <div>
+          <div class="eyebrow">Expandability</div>
+          <h2>Phase 1 today, final form later</h2>
+          <p>The final form runs <span id="expLabel">2.5&times;</span> the initial power. Sizing the 48&nbsp;V bus and structure for the end state now is what makes the second phase a bolt-on rather than a rebuild.</p>
+        </div>
+      </div>
+      <div class="phases" id="phases"></div>
+      <p class="note" id="expNote"></p>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <div>
+          <div class="eyebrow">Build schedule</div>
+          <h2>Estimated timeline</h2>
+          <p>Numbered by dependency order &mdash; permitting runs alongside procurement, so the critical path is shorter than the sum of its parts.</p>
+        </div>
+        <div class="num" id="ganttTotal" style="font-size:15px;font-weight:700"></div>
+      </div>
+      <div class="chart" id="gantt"></div>
+      <div class="legend" id="ganttLegend"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <div>
+          <div class="eyebrow">Bill of materials</div>
+          <h2>Phase 1 line items</h2>
+        </div>
+      </div>
+      <div class="chart">
+        <table id="bom">
+          <caption>Unit prices are 2026 Colombian street prices; quantities come from the sizing above.</caption>
+        </table>
+      </div>
+      <p class="note">
+        <strong>Grounding of the figures.</strong> Santa Marta sits at roughly 5.5&nbsp;kWh/m&sup2;&middot;day, the highest band in Colombia (IDEAM/UPME solar atlas). The reference air conditioner is a Midea Solstice EZ-18RD6 &mdash; 18,000&nbsp;BTU/h, 5.3&nbsp;kW cooling, R32 full-DC inverter, cooling input 634&ndash;2,120&nbsp;W, SEER 8.5. Market rates: 550&ndash;620&nbsp;Wp monocrystalline modules at $400k&ndash;$750k COP each; residential systems at $3.5&ndash;5.5M COP per kWp; a 5&nbsp;kWp array with 5&ndash;10&nbsp;kWh of LiFePO&#8324; quoted at $52&ndash;88M COP. Physical installation runs 1&ndash;3 days, with operador de red paperwork taking 3&ndash;6 weeks. Ley 1715 of 2014 and Ley 2099 of 2021 give an IVA exclusion plus a 50% income-tax deduction, together worth up to ~40% of project cost.
+      </p>
+      <div class="srcs">
+        <a href="https://autosolar.co/kits-solares" target="_blank" rel="noopener">AutoSolar Colombia</a>
+        <a href="https://www.opscolombia.com/ciudad/santa-marta#calculadora" target="_blank" rel="noopener">OPS Colombia &mdash; Santa Marta</a>
+        <a href="https://www.sunnyfuture.co/panel-solar-santa-marta/" target="_blank" rel="noopener">Sunny Future</a>
+        <a href="https://www.midea.com/nl-en/air-solutions/air-conditioning/solstice-split/solstice-split-air-con-18000-btu-h11.ez-18rd6-i---ez-18rd6h-o" target="_blank" rel="noopener">Midea EZ-18RD6 datasheet</a>
+      </div>
+      <p class="note">Planning-grade estimate, not a quotation. Confirm roof area and orientation, panel-level shading, service entrance capacity and the operador de red's current interconnection rules before committing spend.</p>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- constants: 2026 Colombian market ---------- */
+  var PRICE = {
+    panelPerWp:     889,        // COP/Wp  (~$520k for a 585 Wp module)
+    batteryModule:  6500000,    // COP per 5.12 kWh 48 V LiFePO4 rack module
+    inverterUnit:   9500000,    // COP per 8 kW 48 V hybrid inverter
+    mountPerPanel:  180000,
+    bosBase:        1400000,
+    bosPerPanel:    120000,
+    engineering:    2500000,
+    permitsGrid:    1200000,
+    permitsRetie:   600000
+  };
+  var LABOUR_RATE = 0.15, IVA = 0.19, RENTA_RATE = 0.35;
+  var MODULE_KWH = 5.12, INVERTER_KW = 8, AC_MAX_W = 2120, INV_HEADROOM = 1.25;
+
+  var CATS = [
+    { key:"pv",      name:"PV modules",             color:"var(--s1)", hex:"#008574" },
+    { key:"storage", name:"Battery storage",        color:"var(--s2)", hex:"#c06a00" },
+    { key:"inv",     name:"Inverter & electronics", color:"var(--s3)", hex:"#2e5aa8" },
+    { key:"mount",   name:"Structure & mounting",   color:"var(--s4)", hex:"#a63a62" },
+    { key:"labour",  name:"Labour & engineering",   color:"var(--s5)", hex:"#6e56c8" },
+    { key:"permit",  name:"Permits & certification",color:"var(--s6)", hex:"#c4453c" }
+  ];
+  var TRACKS = {
+    design:  { name:"Engineering",  hex:"#2e5aa8" },
+    procure: { name:"Procurement",  hex:"#c06a00" },
+    install: { name:"Installation", hex:"#008574" },
+    cert:    { name:"Certification",hex:"#a63a62" },
+    permit:  { name:"Permitting",   hex:"#6e56c8" }
+  };
+
+  var DEFAULTS = {
+    storage:12, dod:90, acUnits:2, acWatts:1600, acHours:8, duty:65,
+    otherKwh:4, otherPeak:1500, hsp:5.5, pr:78, panelW:585,
+    expansion:2.5, margin:12, ley:true, grid:true
+  };
+  var NUMS = ["storage","dod","acUnits","acWatts","acHours","duty","otherKwh",
+              "otherPeak","hsp","pr","panelW","expansion","margin"];
+  var STORE = "caribe-solar-sizer.v1";
+
+  /* ---------- formatting ---------- */
+  function cop(v){ return "$" + Math.round(v).toLocaleString("es-CO"); }
+  function copM(v){
+    var m = v/1e6;
+    return "$" + (m >= 100 ? m.toFixed(0) : m.toFixed(1)).replace(".", ",") + "M";
+  }
+  function dec(v,d){ return v.toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  /* ---------- inputs ---------- */
+  function read(){
+    var i = {};
+    NUMS.forEach(function(k){
+      var el = document.getElementById(k);
+      var v = parseFloat(el.value);
+      if (!isFinite(v)) v = DEFAULTS[k];
+      var lo = parseFloat(el.min), hi = parseFloat(el.max);
+      if (isFinite(lo) && v < lo) v = lo;
+      if (isFinite(hi) && v > hi) v = hi;
+      i[k] = v;
+    });
+    i.ley  = document.getElementById("ley").checked;
+    i.grid = document.getElementById("grid").checked;
+    return i;
+  }
+
+  /* ---------- the sizing model ---------- */
+  function size(i, scale){
+    var pr  = i.pr/100, dod = i.dod/100, duty = i.duty/100;
+
+    var acUnits   = Math.round(i.acUnits * scale);
+    var storageKwh= i.storage * scale;
+    var otherKwh  = i.otherKwh * scale;
+    var otherPeak = i.otherPeak * scale;
+
+    // ---- demand
+    var acDaily   = acUnits * i.acWatts * i.acHours * duty / 1000;
+    var dailyKwh  = acDaily + otherKwh;
+
+    // ---- array
+    var kwpNeeded = dailyKwh / (i.hsp * pr);
+    var panels    = Math.max(dailyKwh > 0 ? 1 : 0, Math.ceil(kwpNeeded * 1000 / i.panelW));
+    var arrayKwp  = panels * i.panelW / 1000;
+    var genDaily  = arrayKwp * i.hsp * pr;
+
+    // ---- storage
+    var nameplate = storageKwh / dod;
+    var modules   = Math.max(1, Math.ceil(nameplate / MODULE_KWH));
+    var bankKwh   = modules * MODULE_KWH;
+    var usableKwh = bankKwh * dod;
+
+    // ---- conversion
+    var contW  = acUnits * i.acWatts + otherPeak;
+    var surgeW = acUnits * AC_MAX_W  + otherPeak;
+    var inverters = Math.max(1, Math.ceil(contW * INV_HEADROOM / (INVERTER_KW*1000)));
+    var invW = inverters * INVERTER_KW * 1000;
+
+    // ---- autonomy on the bank alone
+    var avgW = acUnits * i.acWatts * duty + otherKwh*1000/24;
+    var autonomyH = avgW > 0 ? usableKwh*1000/avgW : 0;
+    var acOnlyW = acUnits * i.acWatts * duty;
+    var acAutonomyH = acOnlyW > 0 ? usableKwh*1000/acOnlyW : 0;
+
+    // ---- cost
+    var c = {};
+    c.pv      = panels * i.panelW * PRICE.panelPerWp;
+    c.storage = modules * PRICE.batteryModule;
+    c.inv     = inverters * PRICE.inverterUnit;
+    c.mount   = panels * PRICE.mountPerPanel;
+    var bos   = PRICE.bosBase + panels * PRICE.bosPerPanel;
+    c.inv    += bos;
+    var equipment = c.pv + c.storage + c.inv + c.mount;
+    c.labour  = equipment * LABOUR_RATE + PRICE.engineering;
+    c.permit  = i.grid ? PRICE.permitsGrid : PRICE.permitsRetie;
+
+    var subtotal = 0;
+    CATS.forEach(function(k){ subtotal += c[k.key]; });
+    var total   = subtotal * (1 + i.margin/100);
+    var withIva = total * (1 + IVA);
+    var price   = i.ley ? total : withIva;
+    var ivaSaved= i.ley ? withIva - total : 0;
+    var renta   = total * 0.5 * RENTA_RATE;
+
+    return {
+      acUnits:acUnits, acDaily:acDaily, dailyKwh:dailyKwh, otherKwh:otherKwh,
+      panels:panels, arrayKwp:arrayKwp, genDaily:genDaily, kwpNeeded:kwpNeeded,
+      modules:modules, bankKwh:bankKwh, usableKwh:usableKwh, storageKwh:storageKwh,
+      inverters:inverters, invW:invW, contW:contW, surgeW:surgeW,
+      autonomyH:autonomyH, acAutonomyH:acAutonomyH, avgW:avgW,
+      bos:bos, cost:c, subtotal:subtotal, total:total, price:price,
+      ivaSaved:ivaSaved, renta:renta,
+      margin:genDaily - dailyKwh,
+      marginPct: dailyKwh > 0 ? (genDaily/dailyKwh - 1)*100 : 0
+    };
+  }
+
+  /* ---------- schedule ---------- */
+  function schedule(r, grid){
+    var wire = 2 + Math.ceil(r.panels/6);
+    var t = [];
+    t.push({ n:"Engineering & load study",  s:0,  d:6,  track:"design",
+             note:"Roof survey, shading, single-line diagram" });
+    t.push({ n:"Equipment procurement",     s:6,  d:20, track:"procure",
+             note:"Modules, LiFePO₄ bank, hybrid inverter" });
+    t.push({ n:"Ley 1715 incentive filing", s:6,  d:25, track:"permit",
+             note:"UPME certification for IVA exclusion" });
+    if (grid) t.push({ n:"Grid interconnection", s:6, d:30, track:"permit",
+             note:"Operador de red application & approval" });
+    t.push({ n:"Structure & mounting",      s:26, d:2,  track:"install",
+             note:"Rails, ballast, penetrations sealed" });
+    t.push({ n:"Electrical install & wiring", s:28, d:wire, track:"install",
+             note:"DC strings, 48 V bus, AC tie-in" });
+    t.push({ n:"Commissioning & RETIE",     s:28+wire, d:7, track:"cert",
+             note:"Testing, certification, handover" });
+    t.sort(function(a,b){ return a.s - b.s || a.d - b.d; });
+    var end = 0;
+    t.forEach(function(x){ end = Math.max(end, x.s + x.d); });
+    return { tasks:t, days:end };
+  }
+
+  /* ---------- renderers ---------- */
+  function tiles(r, sch){
+    var html = "";
+    function tile(k,v,u,lead){
+      html += '<div class="tile'+(lead?" lead":"")+'"><div class="k">'+k+'</div>'+
+              '<div class="v">'+v+'</div><div class="u">'+u+'</div></div>';
+    }
+    tile("Solar panels", r.panels, dec(r.arrayKwp,2)+" kWp array");
+    tile("Battery bank", dec(r.bankKwh,1)+" kWh", r.modules+" × 5,12 kWh · 48 V");
+    tile("Inverter", dec(r.invW/1000,0)+" kW", r.inverters+" × 8 kW hybrid");
+    tile("Capital cost", copM(r.price), "COP, installed", true);
+    tile("Timeline", sch.days+" d", "≈ "+dec(sch.days/7,1)+" weeks");
+    document.getElementById("tiles").innerHTML = html;
+  }
+
+  function verdict(r, i){
+    var out = [];
+    // generation margin
+    if (r.marginPct >= 5) out.push(["ok","✓","Array covers the load",
+      "Generates "+dec(r.genDaily,1)+" kWh/day against "+dec(r.dailyKwh,1)+" kWh/day of demand — a "+dec(r.marginPct,0)+"% margin."]);
+    else if (r.marginPct >= 0) out.push(["warn","!","Generation margin is thin",
+      dec(r.genDaily,1)+" kWh/day against "+dec(r.dailyKwh,1)+" kWh/day. Under "+dec(5,0)+"% headroom leaves nothing for a cloudy week."]);
+    else out.push(["bad","×","Array under-generates",
+      "Short by "+dec(Math.abs(r.margin),1)+" kWh/day. Add panels or cut run hours."]);
+
+    // autonomy vs the stated storage target
+    var hrs = dec(r.autonomyH,1);
+    if (r.autonomyH >= i.acHours) out.push(["ok","✓","Bank covers a full night",
+      hrs+" h of autonomy at the average "+dec(r.avgW,0)+" W draw — more than the "+dec(i.acHours,1)+" h of AC asked for."]);
+    else out.push(["warn","!","Bank runs "+hrs+" h, not "+dec(i.acHours,1)+" h",
+      dec(r.usableKwh,1)+" kWh usable at "+dec(r.avgW,0)+" W average. Raise usable capacity to about "+
+      dec(r.avgW*i.acHours/1000/(i.dod/100),0)+" kWh nameplate to cover the full run."]);
+
+    // inverter headroom against compressor peak
+    var head = r.invW/r.surgeW;
+    if (head >= 1.15) out.push(["ok","✓","Inverter has surge headroom",
+      dec(r.invW/1000,0)+" kW against a "+dec(r.surgeW/1000,1)+" kW worst-case peak ("+dec(r.surgeW,0)+" W with every compressor at maximum)."]);
+    else out.push(["warn","!","Inverter headroom is tight",
+      dec(r.invW/1000,0)+" kW against a "+dec(r.surgeW/1000,1)+" kW peak. Add a parallel unit before loading it fully."]);
+    return out;
+  }
+
+  function renderVerdict(list){
+    document.getElementById("verdict").innerHTML = list.map(function(v){
+      return '<div class="chk '+v[0]+'"><span class="ic" aria-hidden="true">'+v[1]+'</span>'+
+             '<span><b>'+esc(v[2])+'</b>'+esc(v[3])+'</span></div>';
+    }).join("");
+  }
+
+  function costChart(r){
+    var rows = CATS.map(function(c){ return { name:c.name, hex:c.hex, v:r.cost[c.key] }; })
+                   .sort(function(a,b){ return b.v - a.v; });
+    var max = rows[0].v || 1;
+    var W = 760, padL = 168, padR = 96, rowH = 34, barH = 19;
+    var H = rows.length * rowH + 30;
+    var plotW = W - padL - padR;
+    var ticks = 4, s = "";
+
+    // recessive grid, labelled at values the chart reaches
+    for (var t = 0; t <= ticks; t++){
+      var gx = padL + plotW * t/ticks;
+      s += '<line x1="'+gx+'" y1="6" x2="'+gx+'" y2="'+(H-24)+'" stroke="#e8eeed" stroke-width="1"/>';
+      s += '<text x="'+gx+'" y="'+(H-8)+'" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" '+
+           'font-size="10.5" fill="#7d8d8a">'+(t===0?"$0":copM(max*t/ticks))+'</text>';
+    }
+    rows.forEach(function(d,idx){
+      var y = 8 + idx*rowH, w = Math.max(2, plotW * d.v/max);
+      s += '<text x="'+(padL-12)+'" y="'+(y+barH/2+4)+'" text-anchor="end" font-family="Source Sans 3, system-ui, sans-serif" '+
+           'font-size="12.5" fill="#4c5f5c">'+esc(d.name)+'</text>';
+      // 2px surface gap under each fill keeps adjacent bars separate
+      s += '<rect x="'+padL+'" y="'+y+'" width="'+w+'" height="'+barH+'" rx="4" ry="4" fill="'+d.hex+'"/>';
+      s += '<text x="'+(padL+w+9)+'" y="'+(y+barH/2+4)+'" font-family="JetBrains Mono, ui-monospace, monospace" font-size="12" '+
+           'font-weight="700" fill="#0e1c1a">'+copM(d.v)+'</text>';
+    });
+    document.getElementById("costChart").innerHTML =
+      '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="min-width:640px" role="img" '+
+      'aria-label="Phase 1 capital cost by category">'+s+'</svg>';
+
+    document.getElementById("costLegend").innerHTML = CATS.map(function(c){
+      return '<span class="li"><span class="sw" style="background:'+c.hex+'"></span>'+c.name+'</span>';
+    }).join("");
+    document.getElementById("costTotalLabel").textContent = cop(r.price)+" COP";
+  }
+
+  function ganttChart(sch){
+    var t = sch.tasks, W = 880, padL = 310, padR = 24, rowH = 36, barH = 17;
+    var H = t.length*rowH + 34, plotW = W - padL - padR;
+    var nameX = padL - 60, durX = padL - 14;
+    var days = Math.max(7, sch.days), s = "";
+    var step = days > 42 ? 14 : 7;
+
+    for (var d = 0; d <= days; d += step){
+      var gx = padL + plotW * d/days;
+      s += '<line x1="'+gx+'" y1="4" x2="'+gx+'" y2="'+(H-26)+'" stroke="#e8eeed" stroke-width="1"/>';
+      s += '<text x="'+gx+'" y="'+(H-10)+'" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" '+
+           'font-size="10.5" fill="#7d8d8a">wk '+(d/7)+'</text>';
+    }
+    // critical-path terminus
+    var ex = padL + plotW;
+    s += '<line x1="'+ex+'" y1="4" x2="'+ex+'" y2="'+(H-26)+'" stroke="#008574" stroke-width="1.5" stroke-dasharray="3 3"/>';
+
+    t.forEach(function(x,idx){
+      var y = 6 + idx*rowH;
+      var bx = padL + plotW * x.s/days;
+      var bw = Math.max(3, plotW * x.d/days);
+      var hex = TRACKS[x.track].hex;
+      s += '<text x="'+nameX+'" y="'+(y+barH/2+1)+'" text-anchor="end" font-family="Archivo, Helvetica Neue, sans-serif" '+
+           'font-size="11.5" font-weight="600" fill="#0e1c1a">'+(idx+1)+'. '+esc(x.n)+'</text>';
+      s += '<text x="'+nameX+'" y="'+(y+barH/2+13)+'" text-anchor="end" font-family="Source Sans 3, system-ui, sans-serif" '+
+           'font-size="10.5" fill="#7d8d8a">'+esc(x.note)+'</text>';
+      s += '<rect x="'+bx+'" y="'+y+'" width="'+bw+'" height="'+barH+'" rx="4" ry="4" fill="'+hex+'"/>';
+      s += '<text x="'+durX+'" y="'+(y+barH/2+4)+'" text-anchor="end" font-family="JetBrains Mono, ui-monospace, monospace" '+
+           'font-size="11" font-weight="700" fill="#4c5f5c">'+x.d+'d</text>';
+    });
+    document.getElementById("gantt").innerHTML =
+      '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="min-width:780px" role="img" '+
+      'aria-label="Build schedule by phase">'+s+'</svg>';
+
+    document.getElementById("ganttLegend").innerHTML = Object.keys(TRACKS).map(function(k){
+      return '<span class="li"><span class="sw" style="background:'+TRACKS[k].hex+'"></span>'+TRACKS[k].name+'</span>';
+    }).join("");
+    document.getElementById("ganttTotal").textContent = sch.days+" days · ≈"+dec(sch.days/7,1)+" weeks";
+  }
+
+  function phases(a, b, i){
+    function rows(r){
+      return [
+        ["Air conditioners", r.acUnits + " × 18k BTU"],
+        ["Daily energy",     dec(r.dailyKwh,1) + " kWh/day"],
+        ["Solar panels",     r.panels + " × " + i.panelW + " Wp"],
+        ["Array size",       dec(r.arrayKwp,2) + " kWp"],
+        ["Usable storage",   dec(r.usableKwh,1) + " kWh"],
+        ["Inverter capacity",dec(r.invW/1000,0) + " kW"],
+        ["Capital cost",     copM(r.price) + " COP"]
+      ].map(function(x){ return '<div class="prow"><span>'+x[0]+'</span><b>'+esc(x[1])+'</b></div>'; }).join("");
+    }
+    document.getElementById("phases").innerHTML =
+      '<div class="phase now"><h3>Phase 1 &mdash; initial</h3><div class="cap">Commissioned first; carries '+
+        a.acUnits+' split units.</div>'+rows(a)+'</div>'+
+      '<div class="arrow" aria-hidden="true">'+dec(i.expansion,1)+'× →</div>'+
+      '<div class="phase fin"><h3>Final form</h3><div class="cap">'+dec(i.expansion,1)+
+        '× the initial power, added incrementally.</div>'+rows(b)+'</div>';
+
+    var addPanels = b.panels - a.panels,
+        addMods   = b.modules - a.modules,
+        addInv    = b.inverters - a.inverters,
+        delta     = b.price - a.price;
+    document.getElementById("expNote").innerHTML =
+      "<strong>To get from Phase 1 to the final form:</strong> add " + addPanels + " more panels (" +
+      dec(b.arrayKwp - a.arrayKwp,2) + " kWp), " + addMods + " more LiFePO₄ modules (" +
+      dec(b.bankKwh - a.bankKwh,1) + " kWh) and " + (addInv > 0 ? addInv + " more 8 kW inverter" +
+      (addInv > 1 ? "s" : "") + " in parallel" : "no additional inverter — the Phase 1 unit already carries it") +
+      ", for roughly " + copM(delta) + " COP more. Reserve the roof area and run the DC conduit and " +
+      "battery-rack space for the full " + b.panels + " panels and " + b.modules +
+      " modules during Phase 1 — that is the whole point of building it expandable.";
+    document.getElementById("expLabel").textContent = dec(i.expansion,1) + "×";
+  }
+
+  function bom(r, i){
+    var items = [
+      ["pv",      "Monocrystalline PV module",  i.panelW+" Wp N-type, 25-yr performance warranty",
+                  r.panels, i.panelW*PRICE.panelPerWp, r.cost.pv],
+      ["storage", "LiFePO₄ battery module", "5,12 kWh · 48 V · 100 Ah · rack mount",
+                  r.modules, PRICE.batteryModule, r.cost.storage],
+      ["inv",     "Hybrid inverter/charger",     "8 kW · 48 V · parallel-capable, dual MPPT",
+                  r.inverters, PRICE.inverterUnit, r.inverters*PRICE.inverterUnit],
+      ["inv",     "Balance of system",           "DC/AC protections, breakers, surge arrestors, earthing, cable",
+                  1, r.bos, r.bos],
+      ["mount",   "Mounting structure",          "Anodised aluminium rail, coastal-grade fixings",
+                  r.panels, PRICE.mountPerPanel, r.cost.mount],
+      ["labour",  "Installation labour",         Math.round(LABOUR_RATE*100)+"% of equipment value",
+                  1, r.cost.labour-PRICE.engineering, r.cost.labour-PRICE.engineering],
+      ["labour",  "Engineering & design",        "Load study, single-line diagram, RETIE dossier",
+                  1, PRICE.engineering, PRICE.engineering],
+      ["permit",  "Permits & certification",     i.grid ? "RETIE certification + operador de red interconnection"
+                                                        : "RETIE certification (islanded, no interconnection)",
+                  1, r.cost.permit, r.cost.permit]
+    ];
+    var byKey = {}; CATS.forEach(function(c){ byKey[c.key] = c.hex; });
+
+    var h = '<thead><tr><th>Item</th><th class="n">Qty</th><th class="n">Unit</th><th class="n">Subtotal</th></tr></thead><tbody>';
+    items.forEach(function(x){
+      h += '<tr><td><div class="swcell"><span class="sw" style="background:'+byKey[x[0]]+'"></span>'+
+           '<span><strong>'+esc(x[1])+'</strong><span class="spec">'+esc(x[2])+'</span></span></div></td>'+
+           '<td class="n">'+x[3]+'</td><td class="n">'+cop(x[4])+'</td><td class="n">'+cop(x[5])+'</td></tr>';
+    });
+    h += '</tbody><tfoot>';
+    h += '<tr><td colspan="3">Equipment, labour and permits</td><td class="n">'+cop(r.subtotal)+'</td></tr>';
+    h += '<tr><td colspan="3" style="font-weight:400;color:var(--ink-2)">Installer margin ('+dec(i.margin,0)+'%)</td>'+
+         '<td class="n" style="font-weight:400">'+cop(r.total-r.subtotal)+'</td></tr>';
+    if (i.ley){
+      h += '<tr><td colspan="3" style="font-weight:400;color:var(--accent-deep)">IVA excluded under Ley 1715 '+
+           '(19% not charged)</td><td class="n" style="font-weight:400;color:var(--accent-deep)">−'+
+           cop(r.ivaSaved)+'</td></tr>';
+    } else {
+      h += '<tr><td colspan="3" style="font-weight:400;color:var(--ink-2)">IVA (19%)</td>'+
+           '<td class="n" style="font-weight:400">'+cop(r.price-r.total)+'</td></tr>';
+    }
+    h += '<tr><td colspan="3" style="font-size:15px">Total installed cost</td><td class="n" style="font-size:15px">'+
+         cop(r.price)+'</td></tr>';
+    h += '<tr><td colspan="4" style="font-weight:400;font-size:12.5px;color:var(--ink-3);border-bottom:0">'+
+         'Separately, Ley 1715 allows 50% of the investment to be deducted from income tax over up to 15 years '+
+         '— worth about '+cop(r.renta)+' at a 35% rate. It is a tax benefit, not a discount on this price.'+
+         '</td></tr>';
+    h += '</tfoot>';
+    document.getElementById("bom").innerHTML =
+      '<caption>Unit prices are 2026 Colombian street prices; quantities come from the sizing above.</caption>' + h;
+  }
+
+  /* ---------- persistence ---------- */
+  function save(i){ try { localStorage.setItem(STORE, JSON.stringify(i)); } catch(e){} }
+  function restore(){
+    var raw = null;
+    try { raw = localStorage.getItem(STORE); } catch(e){ return; }
+    if (!raw) return;
+    var v; try { v = JSON.parse(raw); } catch(e){ return; }
+    if (!v || typeof v !== "object") return;
+    NUMS.forEach(function(k){ if (isFinite(v[k])) document.getElementById(k).value = v[k]; });
+    if (typeof v.ley  === "boolean") document.getElementById("ley").checked  = v.ley;
+    if (typeof v.grid === "boolean") document.getElementById("grid").checked = v.grid;
+  }
+
+  /* ---------- main ---------- */
+  function run(){
+    var i = read();
+    var p1 = size(i, 1);
+    var pf = size(i, i.expansion);
+    var sch = schedule(p1, i.grid);
+
+    document.getElementById("hspBadge").textContent = dec(i.hsp,1);
+    tiles(p1, sch);
+    renderVerdict(verdict(p1, i));
+    costChart(p1);
+    phases(p1, pf, i);
+    ganttChart(sch);
+    bom(p1, i);
+    save(i);
+  }
+
+  document.getElementById("rail").addEventListener("input", run);
+  document.getElementById("reset").addEventListener("click", function(){
+    NUMS.forEach(function(k){ document.getElementById(k).value = DEFAULTS[k]; });
+    document.getElementById("ley").checked  = DEFAULTS.ley;
+    document.getElementById("grid").checked = DEFAULTS.grid;
+    run();
+  });
+  document.getElementById("rail").addEventListener("submit", function(e){ e.preventDefault(); });
+
+  restore();
+  run();
+})();
+</script>
